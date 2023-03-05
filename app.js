@@ -1,17 +1,21 @@
 const express = require("express");
 const app = express();
+const mongoose = require("mongoose");
+
+mongoose.set('strictQuery', false);
+
 
 // Chargement des variables d'environnement à partir du fichier .env
 require("dotenv").config();
 
-// Connexion à la base de données MongoDB
-const connectDB = require("./db");
-connectDB();
+
+
 
 // Configuration de vos routes
 const routes = require("./routes");
 app.use("/", routes);
-
+//middlware
+// app.use(exprerss.json());
 // Gestion des erreurs 404
 app.use((req, res, next) => {
   const error = new Error("Not Found");
@@ -28,5 +32,20 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+//connect to db 
+
+ mongoose.connect(process.env.MONGO_URI)
+ .then(()=>{app.listen(process.env.DB_PORT,()=>{
+  console.log(' connected to db listening on port',process.env.DB_PORT)
+})})
+ .catch((error)=>{
+   console.log(error)
+ })
+
+
+
+
+
 
 module.exports = app;
