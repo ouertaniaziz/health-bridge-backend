@@ -1,16 +1,22 @@
 const express = require("express");
 const app = express();
+const mongoose = require("mongoose");
+
+ mongoose.set('strictQuery', false);
+
 
 // Chargement des variables d'environnement à partir du fichier .env
 require("dotenv").config();
 
-// Connexion à la base de données MongoDB
-const connectDB = require("./db");
-connectDB();
-
 // Configuration de vos routes
-const routes = require("./routes");
-app.use("/", routes);
+const usersroutes=require('./routes/users');
+app.use("/api", usersroutes);
+//middlware
+app.use(express.json())
+app.use((req,res,next)=>{
+  console.log(req.path,req.method)
+  next()
+})
 
 // Gestion des erreurs 404
 app.use((req, res, next) => {
@@ -28,5 +34,20 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+//import database var mongoose =
+require('mongoose'); var
+configDB=require('./database/mongodb.json');
+//mongo config const connect =
+
+mongoose.connect(
+configDB.mongo.uri ,
+{ useNewUrlParser:
+true ,
+useUnifiedTopology: true
+},
+()=> console.log("Connected to DB !!") );
+
+
 
 module.exports = app;
