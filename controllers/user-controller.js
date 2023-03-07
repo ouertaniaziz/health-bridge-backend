@@ -1,11 +1,8 @@
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
 
-dotenv.config();
-
-const signup = async (req, res, next) => {
+const signup = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
@@ -28,7 +25,7 @@ const signup = async (req, res, next) => {
   }
 };
 
-const login = async (req, res, next) => {
+const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
@@ -41,31 +38,19 @@ const login = async (req, res, next) => {
     if (!passwordIsValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, {
+      expiresIn: process.env.JWT_EXPIRE_IN,
     });
     res.status(200).json({
       accessToken: token,
       username: user.username,
       message: "OK",
-      expiresIn: process.env.JWT_EXPIRES_IN,
+      expiresIn: process.env.JWT_EXPIRE_IN,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.log(error);
+    res.status(500).json({ message: error });
   }
 };
 
-const getUser = async (req, res, next) => {
-  const userId = req.userId;
-  try {
-    const user = await User.findById(userId).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    return res.status(200).json({ user });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-module.exports = { signup, login, getUser };
+module.exports = { signup, login };

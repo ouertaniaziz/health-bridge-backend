@@ -15,10 +15,18 @@ const Speciality = Object.freeze({
 });
 
 const userSchema = new mongoose.Schema({
-  username: String,
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   firstname: String,
   lastname: String,
-  email: String,
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   password: String,
   gender: {
     type: String,
@@ -37,7 +45,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(Role),
   },
-  
+
   speciality: {
     type: String,
     enum: Object.values(Speciality),

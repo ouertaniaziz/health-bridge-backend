@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
@@ -10,7 +9,7 @@ verifyToken = (req, res, next) => {
     });
   }
 
-  jwt.verify(token, dotenv.SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).send({
         message: "Unauthorized!",
