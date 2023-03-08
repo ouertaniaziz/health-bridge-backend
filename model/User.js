@@ -50,6 +50,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(Speciality),
   },
+  isVerified:{
+    type:Boolean,
+    default:false
+  },
+  emailtoken:{
+    type:String
+  }
 });
 
 const User = mongoose.model("User", userSchema);
