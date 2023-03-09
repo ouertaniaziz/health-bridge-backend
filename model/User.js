@@ -50,6 +50,23 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(Speciality),
   },
+  isVerified:{
+    type:Boolean,
+    default:false
+  },
+  emailtoken:{
+    type:String
+  },
+  // failedAttempts:{
+  //   count :{
+  //     type:Number,
+  //     default:0
+  //   },
+  //   time:{
+  //     type:Date,
+  //     default:Date.now()
+  //   }
+  // }
 });
 
 const User = mongoose.model("User", userSchema);
