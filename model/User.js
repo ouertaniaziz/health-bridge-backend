@@ -56,7 +56,17 @@ const userSchema = new mongoose.Schema({
   },
   emailtoken:{
     type:String
-  }
+  },
+  // failedAttempts:{
+  //   count :{
+  //     type:Number,
+  //     default:0
+  //   },
+  //   time:{
+  //     type:Date,
+  //     default:Date.now()
+  //   }
+  // }
 });
 
 const User = mongoose.model("User", userSchema);
