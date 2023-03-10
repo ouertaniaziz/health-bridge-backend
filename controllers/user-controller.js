@@ -62,17 +62,23 @@ const login = async (req, res) => {
         .limit(3);
 
       if (failedAttempts.length === 3) {
-        const banDuration = 60 * 60 * 1000; // 1 hour ban
-        const banTime = new Date().getTime() + banDuration;
-        user.bannedUntil = new Date(banTime);
-        await user.save();
-        const canUseAgainAt = new Date(banTime + banDuration);
-        return res.status(401).send({
-          message:
-            "Your account has been temporarily banned due to multiple failed login attempts. Please try again later.",
-          bannedUntil: user.bannedUntil,
-          canUseAgainAt: canUseAgainAt,
-        });
+       if (failedAttempts.length === 3) {
+         const banDuration = 60 * 60 * 1000; // 1 hour ban
+         const banTime = new Date().getTime() + banDuration;
+         user.bannedUntil = new Date(banTime);
+         await user.save();
+         const canUseAgainAt = new Date(banTime + banDuration);
+         return res.status(401).send({
+           message:
+             "Your account has been temporarily banned due to multiple failed login attempts. Please try again later.",
+           bannedUntil: user.bannedUntil,
+           canUseAgainAt: canUseAgainAt,
+         });
+       }
+        setTimeout(async () => {
+          user.bannedUntil = null;
+          await user.save();
+        }, banDuration);
       }
 
       throw new Error("Invalid email or password");
@@ -81,10 +87,6 @@ const login = async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
-
-    // Reset the failed attempts count if user logs in successfully
-    await Failed.deleteMany({ userId: user._id });
-
     res.status(200).json({
       accessToken: token,
       username: user.username,
@@ -96,6 +98,7 @@ const login = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const verifyEmail = async (req, res) => {
   try {
