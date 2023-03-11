@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
+const sendEmail = require("../utils/createMail");
 
 const signup = async (req, res) => {
   try {
@@ -129,7 +130,6 @@ const login = async (req, res) => {
   }
 };
 
-
 const verifyEmail = async (req, res) => {
   try {
     const emailToken = req.body.emailtoken;
@@ -150,7 +150,7 @@ const verifyEmail = async (req, res) => {
     res.status(500).json(error.message);
   }
 };
-
+//todo template html, token in db
 const forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -165,60 +165,48 @@ const forgotPassword = async (req, res) => {
       id: user._id,
     };
     const token = jwt.sign(payload, secret, {
-      expiresIn: "900",
+      expiresIn: process.env.JWT_PASSWORD_EXPIRE,
     });
-    const link = `http://localhost:3000/api/reset-password/${user._id}/${token}`;
+    // mail
+    const link = `http://localhost:3000/api/reset-password/${token}`;
+
+    const mailOption = {
+      from: process.env.Email,
+      to: req.body.email,
+      subject: "Reset Password",
+      html: `<p>Hello ${user.firstname} ${user.lastname},</p>
+      <p>Please click on the following link to reset your password:</p>
+      <p><a href="${link}">${link}</a></p>`,
+    };
+    await sendEmail(mailOption);
     console.log(link);
     res.status(200).json({ message: "Email sent", link });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error });
   }
 };
 
-const resetP = async (req, res) => {
-  const { id, token } = req.params;
+const verifyLink = async (req, res) => {
+  const token = req.params.token;
 
   try {
-    const user = await User.findById(id);
+    const payload = jwt.decode(token);
+    if (!payload) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+
+    const user = await User.findById(payload.id);
     if (!user) {
       return res.status(404).json({ message: "Invalid user ID" });
     }
 
-    const secret = process.env.SECRET + user.password;
-    const payload = jwt.verify(token, secret);
-    res.render("resetpassword", { email: user.email });
+    res.status(200).json({ message: "Token is valid" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-const resetPassword = async (req, res, next) => {
-  const { id, token } = req.params;
 
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "Invalid user ID" });
-    }
-
-    const secret = process.env.SECRET + user.password;
-    const payload = jwt.verify(token, secret);
-
-    // validate password and password2 should match
-    if (req.body.password !== req.body.password2) {
-      return res.status(400).json({ message: "Passwords do not match" });
-    }
-
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    user.password = hashedPassword;
-    await user.save();
-    res.status(200).json({ message: "Password changed successfully" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-module.exports = { signup, login, verifyEmail, forgotPassword, resetP, resetPassword};
+module.exports = { signup, login, verifyEmail, forgotPassword, verifyLink };

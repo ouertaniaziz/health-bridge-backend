@@ -57,6 +57,9 @@ const userSchema = new mongoose.Schema({
   emailtoken:{
     type:String
   },
+  resetPasswordToken:{
+    type:String
+  }
   // failedAttempts:{
   //   count :{
   //     type:Number,
