@@ -4,6 +4,7 @@ const router = require("./routes/user-routes");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { verifyToken } = require("./middleware/authjwt");
+var bodyParser = require("body-parser");
 
 dotenv.config();
 

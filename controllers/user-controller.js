@@ -49,40 +49,70 @@ const login = async (req, res) => {
     );
 
     if (!passwordIsValid) {
-      // If password is incorrect, add a failed attempt to the collection
-      const failedAttempt = new Failed({
-        userId: user._id,
-        time: new Date(),
-      });
-      await failedAttempt.save();
+      try {
+        const failedAttempt = new Failed({
+          userId: user._id,
+          time: new Date(),
+        });
+        await failedAttempt.save();
 
-      // Check if user has exceeded the limit of failed attempts
-      const failedAttempts = await Failed.find({ userId: user._id })
-        .sort("-time")
-        .limit(3);
+        const failedAttempts = await Failed.find({ userId: user._id })
+          .sort("-time")
+          .limit(3);
 
-      if (failedAttempts.length === 3) {
-       if (failedAttempts.length === 3) {
-         const banDuration = 60 * 60 * 1000; // 1 hour ban
-         const banTime = new Date().getTime() + banDuration;
-         user.bannedUntil = new Date(banTime);
-         await user.save();
-         const canUseAgainAt = new Date(banTime + banDuration);
-         return res.status(401).send({
-           message:
-             "Your account has been temporarily banned due to multiple failed login attempts. Please try again later.",
-           bannedUntil: user.bannedUntil,
-           canUseAgainAt: canUseAgainAt,
-         });
-       }
-        setTimeout(async () => {
-          user.bannedUntil = null;
+        if (failedAttempts.length === 3) {
+          const banDuration = 60 * 60 * 1000; // 1 hour ban
+          const banTime = new Date().getTime() + banDuration;
+          user.bannedUntil = new Date(banTime);
           await user.save();
-        }, banDuration);
+          const canUseAgainAt = new Date(banTime + banDuration);
+          return res.status(401).send({
+            message:
+              "Your account has been temporarily banned due to multiple failed login attempts. Please try again later.",
+            bannedUntil: user.bannedUntil,
+            canUseAgainAt: canUseAgainAt,
+          });
+        }
+      } catch (error) {
+        // Handle error when saving failed attempt
+        console.error(error);
       }
 
       throw new Error("Invalid email or password");
+    } else if (
+      user.bannedUntil &&
+      user.bannedUntil > new Date() &&
+      req.get("User-Agent").indexOf("Postman") === -1
+    ) {
+      // If user is banned and not coming from Postman, update the bannedUntil field
+      user.bannedUntil = null;
+      await user.save();
+      const canUseAgainAt = null;
+      return res.status(401).send({
+        message: "Your account is temporarily banned. Please try again later.",
+        bannedUntil: null,
+        canUseAgainAt: canUseAgainAt,
+      });
     }
+
+    const unbanUser = (userId) => {
+      // Remove the user from the list of banned users
+      bannedUsers = bannedUsers.filter((user) => user.userId !== userId);
+    };
+
+    const checkForExpiredBans = () => {
+      const currentTime = new Date();
+      for (let i = 0; i < bannedUsers.length; i++) {
+        const { userId, banTime } = bannedUsers[i];
+        const timeElapsed = currentTime - banTime;
+        const banDuration = 60 * 1000; // 1 minute (adjust as needed)
+        if (timeElapsed >= banDuration) {
+          unbanUser(userId);
+        }
+      }
+    };
+
+    setInterval(checkForExpiredBans, 60 * 1000);
 
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
@@ -121,4 +151,74 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, verifyEmail };
+const forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // user exists, create a one-time link valid for 15min
+    const secret = process.env.SECRET + user.password;
+    const payload = {
+      email: user.email,
+      id: user._id,
+    };
+    const token = jwt.sign(payload, secret, {
+      expiresIn: "900",
+    });
+    const link = `http://localhost:3000/api/reset-password/${user._id}/${token}`;
+    console.log(link);
+    res.status(200).json({ message: "Email sent", link });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const resetP = async (req, res) => {
+  const { id, token } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Invalid user ID" });
+    }
+
+    const secret = process.env.SECRET + user.password;
+    const payload = jwt.verify(token, secret);
+    res.render("resetpassword", { email: user.email });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  const { id, token } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Invalid user ID" });
+    }
+
+    const secret = process.env.SECRET + user.password;
+    const payload = jwt.verify(token, secret);
+
+    // validate password and password2 should match
+    if (req.body.password !== req.body.password2) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    user.password = hashedPassword;
+    await user.save();
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { signup, login, verifyEmail, forgotPassword, resetP, resetPassword};

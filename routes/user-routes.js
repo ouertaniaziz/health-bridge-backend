@@ -12,6 +12,9 @@ router.post(
 
 router.post("/login", controller.login);
 router.post("/verify-email", controller.verifyEmail);
+router.post("/forgot-password", controller.forgotPassword);
+router.get("/reset-password/:id/:token ", controller.resetP);
+router.post("/reset-password/:id/:token", controller.resetPassword);
 
 
 
