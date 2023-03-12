@@ -151,6 +151,18 @@ const verifyEmail = async (req, res) => {
   }
 };
 //todo template html, token in db
+const updateResetPasswordToken = async (token) => {
+  try {
+    const result = await User.updateOne(
+      { resetPasswordToken: token }
+    );
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 const forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -167,6 +179,10 @@ const forgotPassword = async (req, res) => {
     const token = jwt.sign(payload, secret, {
       expiresIn: process.env.JWT_PASSWORD_EXPIRE,
     });
+
+    // Update user's resetPasswordToken
+    await updateResetPasswordToken(user._id, token);
+
     // mail
     const link = `http://localhost:3000/api/reset-password/${token}`;
 
@@ -209,4 +225,4 @@ const verifyLink = async (req, res) => {
 };
 
 
-module.exports = { signup, login, verifyEmail, forgotPassword, verifyLink };
+module.exports = { signup, login, verifyEmail, forgotPassword, updateResetPasswordToken, verifyLink };
