@@ -6,6 +6,8 @@ const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
 
+
+
 const signup = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -33,7 +35,7 @@ const signup = async (req, res) => {
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: error });
   }
 };
 
@@ -115,12 +117,13 @@ const login = async (req, res) => {
 
     setInterval(checkForExpiredBans, 60 * 1000);
 
-    const token = jwt.sign({ id: user.id }, process.env.SECRET, {
+    const token = jwt.sign({ id: user._id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
     res.status(200).json({
       accessToken: token,
       username: user.username,
+      role: user.role,
       message: "OK",
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
@@ -151,17 +154,6 @@ const verifyEmail = async (req, res) => {
   }
 };
 //todo template html, token in db
-const updateResetPasswordToken = async (token) => {
-  try {
-    const result = await User.updateOne(
-      { resetPasswordToken: token }
-    );
-    return result;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
 
 const forgotPassword = async (req, res) => {
   try {
@@ -171,58 +163,146 @@ const forgotPassword = async (req, res) => {
     }
 
     // user exists, create a one-time link valid for 15min
-    const secret = process.env.SECRET + user.password;
     const payload = {
-      email: user.email,
-      id: user._id,
+      user_email: user.email,
     };
-    const token = jwt.sign(payload, secret, {
-      expiresIn: process.env.JWT_PASSWORD_EXPIRE,
-    });
+    const options = {
+      expiresIn: "1h",
+    };
+    const token = jsonwebtoken.sign(
+      payload,
+      process.env.RESET_SECRET,
+      options
+    );
 
-    // Update user's resetPasswordToken
-    await updateResetPasswordToken(user._id, token);
-
-    // mail
+    // send email with reset password link
     const link = `http://localhost:3000/api/reset-password/${token}`;
-
     const mailOption = {
       from: process.env.Email,
       to: req.body.email,
       subject: "Reset Password",
       html: `<p>Hello ${user.firstname} ${user.lastname},</p>
-      <p>Please click on the following link to reset your password:</p>
-      <p><a href="${link}">${link}</a></p>`,
+            <p>Please click on the following link to reset your password:</p>
+            <p><a href="${link}">${link}</a></p>`,
     };
-    await sendEmail(mailOption);
+    await sendEmail(mailOption); // assuming sendEmail is defined and working correctly
+    await User.updateOne(
+      { email: req.body.email },
+      { resetPasswordToken: token, resetPasswordExpires: Date.now() + 900000 }
+    );
+
     console.log(link);
     res.status(200).json({ message: "Email sent", link });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: "Error sending email" });
   }
 };
+
+
+
 
 const verifyLink = async (req, res) => {
-  const token = req.params.token;
+  const { email, token } = req.body;
 
   try {
-    const payload = jwt.decode(token);
-    if (!payload) {
-      return res.status(400).json({ message: "Invalid token" });
-    }
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: token,
+    });
 
-    const user = await User.findById(payload.id);
     if (!user) {
-      return res.status(404).json({ message: "Invalid user ID" });
+      return res.json({
+        valid: false,
+        message: "Invalid reset Token!",
+      });
     }
 
-    res.status(200).json({ message: "Token is valid" });
+    if (token == user.resetPasswordToken) {
+      const decodedToken = jsonwebtoken.verify(token, process.env.RESET_SECRET);
+      // Check if the reset token has expired
+      const resetTime = new Date(decodedToken.iat * 1000);
+      console.log("resetTime", resetTime);
+      const expirationTime = new Date(resetTime.getTime() + 60 * 60 * 1000); // 1h expiration
+      const currentTime = new Date();
+      if (currentTime > expirationTime) {
+        //delete reset token
+        await User.updateOne({ email }, { $unset: { resetPasswordToken: 1 } });
+        return res.json({
+          valid: false,
+          message: "reset token expired !",
+        });
+      }
+      return res.json({
+        valid: true,
+        message: "reset token checked !",
+      });
+    }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
+const updatePassword = async (req, res) => {
+  const { email, password, resetToken } = req.body;
 
-module.exports = { signup, login, verifyEmail, forgotPassword, updateResetPasswordToken, verifyLink };
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        updateStatus: false,
+        userFound: false,
+      });
+    }
+
+    const isTokenValid = await checkResetToken(email, resetToken);
+    if (!isTokenValid) {
+      return res.status(400).json({
+        message: "Invalid reset Token!",
+        updateStatus: false,
+      });
+    }
+
+    // Update password
+    const update = await User.updateOne(
+      { email: user.email },
+      { password: bcrypt.hashSync(password, 8) }
+    );
+
+    if (!update) {
+      return res.status(500).json({
+        message: "Failed to update password",
+        updateStatus: false,
+        userFound: true,
+      });
+    }
+
+    // Delete reset password token
+    await User.updateOne({ email }, { $unset: { resetPasswordToken: 1 } });
+
+    return res.status(200).json({
+      message: "Password updated successfully",
+      updateStatus: true,
+      userFound: true,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Failed to update password",
+      updateStatus: false,
+      userFound: false,
+    });
+  }
+
+};
+
+
+module.exports = {
+  signup,
+  login,
+  verifyEmail,
+  forgotPassword,
+  verifyLink,
+  updatePassword,
+};

@@ -36,11 +36,6 @@ const userSchema = new mongoose.Schema({
   state: String,
   street: String,
   creationDate: Date,
-  status: {
-    type: String,
-    enum: ["Pending", "Active", "Inactive"],
-    default: "Pending",
-  },
   role: {
     type: String,
     enum: Object.values(Role),

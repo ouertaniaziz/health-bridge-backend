@@ -3,17 +3,20 @@ const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const { verifyToken } = require("./middleware/authjwt");
+
 var bodyParser = require("body-parser");
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: "http://localhost:3001" }));
 app.use(express.json());
 app.use("/api", router);
-// app.use(verifyToken);
+
+// parse requests of content-type - application/json
+app.use(bodyParser.json());
+
 
 mongoose.connect(
   process.env.MONGODB_URL,
