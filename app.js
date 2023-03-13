@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors( { origin: "http://localhost:3000" } ));
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use("/api", router);
 app.use(verifyToken);
@@ -29,4 +29,4 @@ app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port: ${process.env.PORT || 5000}`);
 });
 
-module.exports=app;
+module.exports = app;
