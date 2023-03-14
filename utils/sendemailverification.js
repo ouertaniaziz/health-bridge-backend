@@ -8,14 +8,15 @@ const sendverificationMail = (user) => {
     from: `"Health Bridge" <${process.env.Email}`,
     to: user.email,
     subject: "Verify toy email",
-    html: `<p> Hello ${user.username},please verify
+    html:  `<p> Hello ${user.username}, please verify
         your email by clicking this link </p>
-        <a href="facebook.com" >verify you email
+        <a href="facebook.com" >verify your email</a>
         
         `,
+
     // url must be changed
   };
-  transporter.sendMail(mailoptions, (error, info) => {
+  transporter.sendMail(mailoptions, (error) => {
     if (error) {
       console.log(error);
     } else {

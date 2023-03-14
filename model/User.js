@@ -45,10 +45,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(Speciality),
   },
-  isVerified:{
-    type:Boolean,
-    default:false
-  },
   emailtoken:{
     type:String
   },
