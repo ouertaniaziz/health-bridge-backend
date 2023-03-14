@@ -36,6 +36,13 @@ const userSchema = new mongoose.Schema({
   state: String,
   street: String,
   creationDate: Date,
+  dateOfBirth: Date,
+  bloodGroup: String,
+  medicalHistory: String,
+  medications: String,
+  insuranceInformation: String,
+  symptoms: String,
+  testResults: String,
   role: {
     type: String,
     enum: Object.values(Role),

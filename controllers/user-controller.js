@@ -23,6 +23,14 @@ const signup = async (req, res) => {
       speciality: req.body.speciality,
       creationDate: new Date(),
       emailtoken: crypto.randomBytes(64).toString("hex"),
+      dateOfBirth: req.body.dateOfBirth,
+      bloodGroup: req.body.bloodGroup,
+      medicalHistory: req.body.medicalHistory,
+      medications: req.body.medications,
+      insuranceInformation: req.body.insuranceInformation,
+      symptoms: req.body.symptoms,
+      testResults: req.body.testResults,
+      gender: req.body.sex,
     });
     //console.log("user saved!");
     await user.save();
