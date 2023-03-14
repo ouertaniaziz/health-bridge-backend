@@ -12,7 +12,7 @@ const signup = async (req, res) => {
 
     const user = new User({
       username: req.body.username,
-      firstname: req.body.firstname,
+      firstname: req.body.name,
       lastname: req.body.lastname,
       email: req.body.email,
       password: hashedPassword,
@@ -22,18 +22,16 @@ const signup = async (req, res) => {
       image: req.body.image,
       speciality: req.body.speciality,
       creationDate: new Date(),
-      emailToken: crypto.randomBytes(64).toString("hex"),
-      isVerified: false,
+      emailtoken: crypto.randomBytes(64).toString("hex"),
     });
-
+    //console.log("user saved!");
     await user.save();
 
-    //await sendverificationMail(user);
+    // await sendverificationMail(user);
     console.log("Verification email sent!");
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
