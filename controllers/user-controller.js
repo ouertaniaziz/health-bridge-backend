@@ -297,12 +297,40 @@ const updatePassword = async (req, res) => {
 
 };
 
+const logout = async (req, res) => {
+  // Retrieve the JWT token from the request header
+  const token = req.headers.authorization.split(" ")[1];
+
+  // Verify and decode the JWT token
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Invalid or expired authentication token",
+      });
+    }
+
+    // Perform logout logic here
+    req.session.destroy(function (err) {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Error logging out" });
+      } else {
+        res.status(200).json({ success: "Logged out successfully" });
+      }
+    });
+
+    // Respond with a success message
+    return res.json({ message: "Successfully logged out" });
+  });
+}
 
 module.exports = {
   signup,
   login,
   verifyEmail,
-  forgotPassword,
+  forgotPasswod,
   verifyLink,
   updatePassword,
+  logout
 };
