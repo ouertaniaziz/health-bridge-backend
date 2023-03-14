@@ -1,12 +1,12 @@
 const verifysignup = require("../middleware/verifysignup");
 const controller = require("../controllers/user-controller");
 const express = require("express");
-const { verifyToken } = require("./middleware/authjwt");
+const { verifyToken } = require("../middleware/authjwt");
 const router = express.Router();
 
 router.post(
   "/signup",
-  [verifysignup.checkDuplicateUsernameOrEmail, verifysignup.checkRolesExisted],
+  [verifysignup.checkDuplicateUsernameOrEmail],
   controller.signup
 );
 

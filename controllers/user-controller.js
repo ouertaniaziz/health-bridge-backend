@@ -6,8 +6,6 @@ const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
 
-
-
 const signup = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -30,7 +28,7 @@ const signup = async (req, res) => {
 
     await user.save();
 
-    await sendverificationMail(user);
+    //await sendverificationMail(user);
     console.log("Verification email sent!");
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
@@ -115,7 +113,7 @@ const login = async (req, res) => {
       }
     };
 
-    setInterval(checkForExpiredBans, 60 * 1000);
+    // setInterval(checkForExpiredBans, 60 * 1000);
 
     const token = jwt.sign({ id: user._id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
@@ -169,11 +167,7 @@ const forgotPassword = async (req, res) => {
     const options = {
       expiresIn: "1h",
     };
-    const token = jsonwebtoken.sign(
-      payload,
-      process.env.RESET_SECRET,
-      options
-    );
+    const token = jsonwebtoken.sign(payload, process.env.RESET_SECRET, options);
 
     // send email with reset password link
     const link = `http://localhost:3000/api/reset-password/${token}`;
@@ -198,9 +192,6 @@ const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Error sending email" });
   }
 };
-
-
-
 
 const verifyLink = async (req, res) => {
   const { email, token } = req.body;
@@ -294,9 +285,7 @@ const updatePassword = async (req, res) => {
       userFound: false,
     });
   }
-
 };
-
 
 module.exports = {
   signup,

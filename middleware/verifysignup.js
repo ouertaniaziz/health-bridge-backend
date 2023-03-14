@@ -2,7 +2,7 @@ const User = require("../model/User");
 
 const checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Check username
-  console.log("Checking username")
+  console.log("Checking username");
   User.findOne({
     username: req.body.username,
   }).then((user) => {
@@ -28,9 +28,9 @@ const checkDuplicateUsernameOrEmail = (req, res, next) => {
     });
   });
 };
-
+/*
 const checkRolesExisted = (req, res, next) => {
-  const roles = req.body.roles;
+  const roles = req.body.role;
   const validRoles = Object.values(User.Role);
 
   if (roles) {
@@ -45,10 +45,10 @@ const checkRolesExisted = (req, res, next) => {
   }
 
   next();
-};
+};*/
 const verifysignup = {
   checkDuplicateUsernameOrEmail,
-  checkRolesExisted
+  /*checkRolesExisted,*/
 };
 
 module.exports = verifysignup;
