@@ -15,4 +15,6 @@ router.post("/verify-email", controller.verifyEmail, verifyToken);
 router.post("/forgot-password", controller.forgotPassword, verifyToken);
 router.get("/reset-password/:token", controller.verifyLink, verifyToken);
 router.get("/reset-password/:token", controller.updatePassword, verifyToken);
-module.exports = router;
+module.exports = router;  
+
+

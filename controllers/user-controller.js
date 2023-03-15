@@ -31,6 +31,11 @@ const signup = async (req, res) => {
       symptoms: req.body.symptoms,
       testResults: req.body.testResults,
       gender: req.body.sex,
+      IdCardDoctor:req.body.IdCardDoctor,
+      DateOfGraduation:req.body.DateOfGraduation,
+      DateofCreation: req.body.DateofCreation,
+      isVerified: false,
+    
     });
     //console.log("user saved!");
     await user.save();
