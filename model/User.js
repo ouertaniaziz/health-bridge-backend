@@ -59,14 +59,18 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-   banLiftsAt: {
+  banLiftsAt: {
     type: Date,
     default: null,
   },
-  failedLoginAttempts:{
-      type:Number,
-      default:0
-  }
+  failedLoginAttempts: {
+    type: Number,
+    default: 0,
+  },
+  resetCode: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const User = mongoose.model("User", userSchema);

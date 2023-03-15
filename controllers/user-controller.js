@@ -6,6 +6,9 @@ const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
 const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
+
+
 
 const signup = async (req, res) => {
   try {
@@ -34,63 +37,6 @@ const signup = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// const login = async (req, res) => {
-//   try {
-//     const user = await User.findOne({ email: req.body.email });
-
-//     // Check if user exists
-//     if (!user) {
-//       return res.status(401).json({ message: "Invalid email or password" });
-//     }
-
-//     // // Check if user is banned
-//     // if (user.banned && user.banLiftsAt > Date.now()) {
-//     //   return res
-//     //     .status(403)
-//     //     .json({ message: `User is banned until ${user.banLiftsAt}` });
-//     // }
-
-//     // Verify password
-//     const passwordIsValid = await bcrypt.compare(
-//       req.body.password,
-//       user.password
-//     );
-
-//     if (!passwordIsValid) {
-//       // Increment failed login attempts
-//       user.failedLoginAttempts++;
-//       console.log(user.failedLoginAttempts);
-//       if (user.failedLoginAttempts >= 3) {
-//         // User has exceeded the threshold, ban them for 1 hour
-//         user.banned = true;
-//         user.banLiftsAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-//         await user.save();
-//         return res
-//           .status(403)
-//           .json({ message: `User is banned until ${user.banLiftsAt}` });
-//       }
-//       await user.save();
-//       return res.status(401).json({ message: "Invalid email or password" });
-//     }
-
-//     // Reset failed login attempts
-//     user.failedLoginAttempts = 0;
-//     await user.save();
-
-//     // Generate access token
-//     const accessToken = jwt.sign({ sub: user.id }, process.env.SECRET);
-
-//     return res.status(200).json({ accessToken });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: error });
-//   }
-// };
-
-
-
-
 
 const login = async (req, res) => {
   try {
@@ -144,60 +90,62 @@ const verifyEmail = async (req, res) => {
 
 //todo template html, token in db
 
-function sendRecoveryEmail({ email, OTP }) {
-  return new Promise((resolve, reject) => {
-    const transporter = nodemailer.createTransport({
-      service: "hotmail",
-      auth: {
-        user: `${process.env.Email}`,
-        pass: `${process.env.password}`,
-      },
-    });
+const ForgetPassword = async (req, res) => {
+   const { email } = req.body.email;
+   const URL = process.env.CLIENT_URL;
 
-    const mail_configs = {
-      from: `"Health Bridge" <${process.env.Email}>`,
-      to: email,
-      subject: "PASSWORD RECOVERY",
-      html: `<!DOCTYPE html>
-            <html lang="en" >
-            <head>
-                      <meta charset="UTF-8">
-                      <title>HealthBridge - OTP Email Template</title>
-  
+   try {
+     const user = await User.findOne({ email });
+     if (!user) {
+       res.status(404).json({ message: "Error : user doesn't exist" });
+     } else {
+       res.status(200).json({ message: "Welcome" });
+       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+       const msg = {
+         to: email,
+         from: `${process.env.Email}`,
+         subject: "Welcome to Kaddem Project",
+         html: `
+				<h2>Click the link to reset your password</h2>
+				<p>${URL}</p>
+			`,
+         //templateId: 'd-e09cf57a0a0e45e894027ffd5b6caebb',
+       };
+       sgMail
+         .send(msg)
+         .then(() => {
+           console.log("Email sent");
+         })
+         .catch((error) => {
+           console.error(error);
+         });
+     }
+   } catch (error) {
+     res.status(400).json({ error: error.message });
+   }
+}
 
-            </head>
-            <body>
-              <!-- partial:index.partial.html -->
-                <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
-                <div style="margin:50px auto;width:70%;padding:20px 0">
-                <div style="border-bottom:1px solid #eee">
-                <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">HealthBridge Admin</a>
-                </div>
-                    <p style="font-size:1.1em">Hi <${User.username}></p>
-                    <p>Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
-                    <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
-                    <p style="font-size:0.9em;">Regards,<br />HealthBridge </p>
-                    <hr style="border:none;border-top:1px solid #eee" />
-                    <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-                      <p>HealthBridge Inc</p>
-                      <p>1600 Amphitheatre Parkway</p>
-                      <p>Tunisia</p>
-                    </div>
-                  </div>
-                </div>
-              <!-- partial -->
-                  
-              </body>
-              </html>`,
-    };
-    transporter.sendMail(mail_configs, function (error, info) {
-      if (error) {
-        console.log(error);
-        return reject({ message: `An error has occurred` });
-      }
-      return resolve({ message: "Email sent successfully" });
-    });
-  });
+const ResetPassword = async (req, res) => {
+  const { email, password, newpassword } = req.body;
+
+        try {
+            const user = await User.findOne({ email });
+            const user2 = await User.resetpwd(password, newpassword)
+            if (user2) {
+                res.status(400).json({ error: "passwords don't match" });
+            }
+            if (!user) {
+                res.status(400).json({ error: "User don't exists" });
+            } else{
+                user.password = await bcrypt.hash(req.body.password, 10);
+                await user.save();
+        
+                res.status(200).json({ message: "password changed" });
+            }
+    
+        } catch (error) {
+            res.status(400).json({error: error.message})
+        }
 }
 
 const logout = async (req, res) => {
@@ -216,6 +164,7 @@ module.exports = {
   signup,
   login,
   verifyEmail,
-  sendRecoveryEmail,
-  logout
+  ForgetPassword,
+  ResetPassword,
+  logout,
 };
