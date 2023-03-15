@@ -5,6 +5,12 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
+const DOMAIN = process.env.DOMAIN;
+
+const formData = require("form-data");
+const Mailgun = require("mailgun.js");
+
+const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
   try {
@@ -290,6 +296,15 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const client = mailgun.client({ username: "api", key: "API_KEY" || "" });
+(async () => {
+  try {
+    const validationRes = await client.validate.get("andy.houssem@gmail.com");
+    console.log("validationRes", validationRes);
+  } catch (error) {
+    console.error(error);
+  }
+})();
 module.exports = {
   signup,
   login,
