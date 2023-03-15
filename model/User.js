@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-
-
+//add patient
 const Role = Object.freeze({
   Patient: "patient",
   Doctor: "doctor",
@@ -37,6 +36,13 @@ const userSchema = new mongoose.Schema({
   state: String,
   street: String,
   creationDate: Date,
+  dateOfBirth: Date,
+  bloodGroup: String,
+  medicalHistory: String,
+  medications: String,
+  insuranceInformation: String,
+  symptoms: String,
+  testResults: String,
   role: {
     type: String,
     enum: Object.values(Role),
@@ -47,9 +53,6 @@ const userSchema = new mongoose.Schema({
     enum: Object.values(Speciality),
   },
   emailtoken: {
-    type: String,
-  },
-  resetPasswordToken: {
     type: String,
   },
   isVerified: {

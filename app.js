@@ -18,7 +18,6 @@ app.use("/api", router);
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 
-
 mongoose.connect(
   process.env.MONGODB_URL,
   {

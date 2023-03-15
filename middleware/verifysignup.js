@@ -2,7 +2,7 @@ const User = require("../model/User");
 
 const checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Check username
-  console.log("Checking username")
+  console.log("Checking username");
   User.findOne({
     username: req.body.username,
   }).then((user) => {
