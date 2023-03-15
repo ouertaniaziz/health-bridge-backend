@@ -55,19 +55,27 @@ const userSchema = new mongoose.Schema({
   emailtoken: {
     type: String,
   },
-  resetPasswordToken: {
-    type: String,
+  isVerified: {
+    type: Boolean,
+    default: false,
   },
-  // failedAttempts:{
-  //   count :{
-  //     type:Number,
-  //     default:0
-  //   },
-  //   time:{
-  //     type:Date,
-  //     default:Date.now()
-  //   }
-  // }
+  banned: {
+    type: Boolean,
+    default: false,
+  },
+  banLiftsAt: {
+    type: Date,
+    default: null,
+  },
+  failedLoginAttempts: {
+    type: Number,
+    default: 0,
+  },
+  resetCode: {
+    type: Number,
+    default: 0,
+  },
+  resetpwdToken: String,
 });
 
 const User = mongoose.model("User", userSchema);
