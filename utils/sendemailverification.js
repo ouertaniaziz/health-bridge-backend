@@ -1,22 +1,26 @@
 const { createmailtransportr } = require("./createMail");
-
-const sendverificationMail = (user) => {
+const ejs = require("ejs");
+const sendverificationMail = async (user) => {
   const transporter = createmailtransportr();
-  
-  console.log('tran done')
+  const context = {
+    username: user.username,
+    firstname: user.firstname,
+    token: user.emailtoken,
+  };
+  const template = ejs.renderFile(
+    process.cwd() + "/views/email_template/index.html",
+    context
+
+    //emailtoken:user.emailtoken
+  );
   const mailoptions = {
     from: `"Health Bridge" <${process.env.Email}`,
     to: user.email,
-    subject: "Verify toy email",
-    html:  `<p> Hello ${user.username}, please verify
-        your email by clicking this link </p>
-        <a href="facebook.com" >verify your email</a>
-        
-        `,
-
+    subject: "Verify your email",
+    html: await template,
     // url must be changed
   };
-  transporter.sendMail(mailoptions, (error) => {
+  transporter.sendMail(mailoptions, (error, info) => {
     if (error) {
       console.log(error);
     } else {

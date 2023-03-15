@@ -32,14 +32,15 @@ const signup = async (req, res) => {
       testResults: req.body.testResults,
       gender: req.body.sex,
     });
-    //console.log("user saved!");
+    console.log("here!");
     await user.save();
+    sendverificationMail(user);
 
-    // await sendverificationMail(user);
-    console.log("Verification email sent!");
+    //sendverificationMail(user);
+
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -140,21 +141,17 @@ const login = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
     const emailToken = req.body.emailtoken;
-    if (!emailToken) return res.status(404).json("emailtoken not found");
     const user = await User.findOne({ emailtoken: emailToken });
     if (user) {
+      console.log("user is found!");
       user.emailtoken = null;
-      user.isVerified = true;
+      //user.isVerified = true;
       await user.save();
-      res.status(200).json({
-        name: user.name,
-        email: user.email,
-        isVerified: user.isVerified,
-      });
-    } else res.status(404).json("email verif failed,invalid token");
+      res.status(200).send();
+    }
   } catch (error) {
     console.log(error);
-    res.status(500).json(error.message);
+    res.status(404).json(error.message);
   }
 };
 //todo template html, token in db
