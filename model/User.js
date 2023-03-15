@@ -54,17 +54,19 @@ const userSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false,
+  },
+  banned: {
+    type: Boolean,
+    default: false,
+  },
+   banLiftsAt: {
+    type: Date,
+    default: null,
+  },
+  failedLoginAttempts:{
+      type:Number,
+      default:0
   }
-  // failedAttempts:{
-  //   count :{
-  //     type:Number,
-  //     default:0
-  //   },
-  //   time:{
-  //     type:Date,
-  //     default:Date.now()
-  //   }
-  // }
 });
 
 const User = mongoose.model("User", userSchema);

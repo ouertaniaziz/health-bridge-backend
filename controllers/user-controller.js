@@ -35,99 +35,91 @@ const signup = async (req, res) => {
   }
 };
 
+// const login = async (req, res) => {
+//   try {
+//     const user = await User.findOne({ email: req.body.email });
+
+//     // Check if user exists
+//     if (!user) {
+//       return res.status(401).json({ message: "Invalid email or password" });
+//     }
+
+//     // // Check if user is banned
+//     // if (user.banned && user.banLiftsAt > Date.now()) {
+//     //   return res
+//     //     .status(403)
+//     //     .json({ message: `User is banned until ${user.banLiftsAt}` });
+//     // }
+
+//     // Verify password
+//     const passwordIsValid = await bcrypt.compare(
+//       req.body.password,
+//       user.password
+//     );
+
+//     if (!passwordIsValid) {
+//       // Increment failed login attempts
+//       user.failedLoginAttempts++;
+//       console.log(user.failedLoginAttempts);
+//       if (user.failedLoginAttempts >= 3) {
+//         // User has exceeded the threshold, ban them for 1 hour
+//         user.banned = true;
+//         user.banLiftsAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+//         await user.save();
+//         return res
+//           .status(403)
+//           .json({ message: `User is banned until ${user.banLiftsAt}` });
+//       }
+//       await user.save();
+//       return res.status(401).json({ message: "Invalid email or password" });
+//     }
+
+//     // Reset failed login attempts
+//     user.failedLoginAttempts = 0;
+//     await user.save();
+
+//     // Generate access token
+//     const accessToken = jwt.sign({ sub: user.id }, process.env.SECRET);
+
+//     return res.status(200).json({ accessToken });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: error });
+//   }
+// };
+
+
+
+
+
 const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
     const passwordIsValid = await bcrypt.compare(
       req.body.password,
       user.password
     );
-
     if (!passwordIsValid) {
-      try {
-        const failedAttempt = new Failed({
-          userId: user._id,
-          time: new Date(),
-        });
-        await failedAttempt.save();
-
-        const failedAttempts = await Failed.find({ userId: user._id })
-          .sort("-time")
-          .limit(3);
-
-        if (failedAttempts.length === 3) {
-          const banDuration = 60 * 60 * 1000; // 1 hour ban
-          const banTime = new Date().getTime() + banDuration;
-          user.bannedUntil = new Date(banTime);
-          await user.save();
-          const canUseAgainAt = new Date(banTime + banDuration);
-          return res.status(401).send({
-            message:
-              "Your account has been temporarily banned due to multiple failed login attempts. Please try again later.",
-            bannedUntil: user.bannedUntil,
-            canUseAgainAt: canUseAgainAt,
-          });
-        }
-      } catch (error) {
-        // Handle error when saving failed attempt
-        console.error(error);
-      }
-
-      throw new Error("Invalid email or password");
-    } else if (
-      user.bannedUntil &&
-      user.bannedUntil > new Date() &&
-      req.get("User-Agent").indexOf("Postman") === -1
-    ) {
-      // If user is banned and not coming from Postman, update the bannedUntil field
-      user.bannedUntil = null;
-      await user.save();
-      const canUseAgainAt = null;
-      return res.status(401).send({
-        message: "Your account is temporarily banned. Please try again later.",
-        bannedUntil: null,
-        canUseAgainAt: canUseAgainAt,
-      });
+      return res.status(401).json({ message: "Invalid password" });
     }
-
-    const unbanUser = (userId) => {
-      // Remove the user from the list of banned users
-      bannedUsers = bannedUsers.filter((user) => user.userId !== userId);
-    };
-
-    const checkForExpiredBans = () => {
-      const currentTime = new Date();
-      for (let i = 0; i < bannedUsers.length; i++) {
-        const { userId, banTime } = bannedUsers[i];
-        const timeElapsed = currentTime - banTime;
-        const banDuration = 60 * 1000; // 1 minute (adjust as needed)
-        if (timeElapsed >= banDuration) {
-          unbanUser(userId);
-        }
-      }
-    };
-
-    setInterval(checkForExpiredBans, 60 * 1000);
-
-    const token = jwt.sign({ id: user._id }, process.env.SECRET, {
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
     res.status(200).json({
       accessToken: token,
       username: user.username,
-      role: user.role,
       message: "OK",
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
+    console.log(error);
+    res.status(500).json({ message: error });
   }
 };
+
 
 const verifyEmail = async (req, res) => {
   try {
@@ -149,6 +141,7 @@ const verifyEmail = async (req, res) => {
     res.status(500).json(error.message);
   }
 };
+
 //todo template html, token in db
 
 function sendRecoveryEmail({ email, OTP }) {
@@ -166,36 +159,36 @@ function sendRecoveryEmail({ email, OTP }) {
       to: email,
       subject: "PASSWORD RECOVERY",
       html: `<!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>HealthBridge - OTP Email Template</title>
+            <html lang="en" >
+            <head>
+                      <meta charset="UTF-8">
+                      <title>HealthBridge - OTP Email Template</title>
   
 
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
-  <div style="margin:50px auto;width:70%;padding:20px 0">
-    <div style="border-bottom:1px solid #eee">
-      <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">HealthBridge Admin</a>
-    </div>
-    <p style="font-size:1.1em">Hi,</p>
-    <p>Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
-    <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
-    <p style="font-size:0.9em;">Regards,<br />HealthBridge </p>
-    <hr style="border:none;border-top:1px solid #eee" />
-    <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-      <p>HealthBridge Inc</p>
-      <p>1600 Amphitheatre Parkway</p>
-      <p>Tunisia</p>
-    </div>
-  </div>
-</div>
-<!-- partial -->
-  
-</body>
-</html>`,
+            </head>
+            <body>
+              <!-- partial:index.partial.html -->
+                <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+                <div style="margin:50px auto;width:70%;padding:20px 0">
+                <div style="border-bottom:1px solid #eee">
+                <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">HealthBridge Admin</a>
+                </div>
+                    <p style="font-size:1.1em">Hi <${User.username}></p>
+                    <p>Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
+                    <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
+                    <p style="font-size:0.9em;">Regards,<br />HealthBridge </p>
+                    <hr style="border:none;border-top:1px solid #eee" />
+                    <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+                      <p>HealthBridge Inc</p>
+                      <p>1600 Amphitheatre Parkway</p>
+                      <p>Tunisia</p>
+                    </div>
+                  </div>
+                </div>
+              <!-- partial -->
+                  
+              </body>
+              </html>`,
     };
     transporter.sendMail(mail_configs, function (error, info) {
       if (error) {
@@ -208,31 +201,15 @@ function sendRecoveryEmail({ email, OTP }) {
 }
 
 const logout = async (req, res) => {
-  // Retrieve the JWT token from the request header
-  const token = req.headers.authorization.split(" ")[1];
-
-  // Verify and decode the JWT token
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({
-        error: "Unauthorized",
-        message: "Invalid or expired authentication token",
-      });
-    }
-
-    // Perform logout logic here : destroy the user's session to log them out
-    req.session.destroy(function (err) {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Error logging out" });
-      } else {
-        res.status(200).json({ success: "Logged out successfully" });
-      }
-    });
-
-    // Respond with a success message
-    return res.status(200).json({ message: "Successfully logged out" });
-  });
+ try {
+   const token = req.headers.authorization.split(" ")[1]; // Get JWT token from Authorization header
+   await jwt.verify(token, process.env.SECRET); // Verify JWT token
+   // If JWT is valid, simply send a success response
+   res.status(200).json({ message: "Logged out successfully" });
+ } catch (error) {
+   // If JWT is invalid or missing, send an error response
+   res.status(401).json({ message: "Unauthorized" });
+ }
 };
 
 module.exports = {
@@ -240,5 +217,5 @@ module.exports = {
   login,
   verifyEmail,
   sendRecoveryEmail,
-  logout,
+  logout
 };

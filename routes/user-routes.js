@@ -1,8 +1,8 @@
 const verifysignup = require("../middleware/verifysignup");
 const controller = require("../controllers/user-controller");
 const express = require("express");
-const { verifyToken } = require("../middleware/authjwt");
 const router = express.Router();
+const { verifyToken } = require("../middleware/authjwt");
 
 router.post(
   "/signup",
@@ -18,6 +18,5 @@ router.post("/send_recovery_email", (req, res) => {
     .catch((error) => res.status(500).send(error.message));
 });
 // logout router
-router.post("/logout", controller.logout, verifyToken);
-
+router.get("/logout", controller.logout);
 module.exports = router;
