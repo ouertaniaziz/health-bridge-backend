@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+
 const Role = Object.freeze({
   Patient: "patient",
   Doctor: "doctor",
@@ -71,7 +72,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  resetpwdToken: String,
 });
+
+
 
 const User = mongoose.model("User", userSchema);
 

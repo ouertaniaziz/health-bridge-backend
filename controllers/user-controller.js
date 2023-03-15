@@ -1,12 +1,11 @@
 const User = require("../model/User");
-const Failed = require("../model/Failed");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
 const nodemailer = require("nodemailer");
-const sgMail = require("@sendgrid/mail");
+
 
 
 
@@ -91,62 +90,97 @@ const verifyEmail = async (req, res) => {
 //todo template html, token in db
 
 const ForgetPassword = async (req, res) => {
-   const { email } = req.body.email;
-   const URL = process.env.CLIENT_URL;
-
-   try {
-     const user = await User.findOne({ email });
-     if (!user) {
-       res.status(404).json({ message: "Error : user doesn't exist" });
-     } else {
-       res.status(200).json({ message: "Welcome" });
-       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-       const msg = {
-         to: email,
-         from: `${process.env.Email}`,
-         subject: "Welcome to Kaddem Project",
-         html: `
-				<h2>Click the link to reset your password</h2>
-				<p>${URL}</p>
-			`,
-         //templateId: 'd-e09cf57a0a0e45e894027ffd5b6caebb',
-       };
-       sgMail
-         .send(msg)
-         .then(() => {
-           console.log("Email sent");
-         })
-         .catch((error) => {
-           console.error(error);
-         });
-     }
-   } catch (error) {
-     res.status(400).json({ error: error.message });
-   }
+   
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const payload = { user_email: user.email };
+    const options = { expiresIn: '1h' };
+    const resetToken = jwt.sign(payload, process.env.RESET_SECRET, options);
+    const URL = process.env.CLIENT_URL;
+    const transporter = nodemailer.createTransport();
+      const mailoptions = {
+        from: `"Health Bridge" <${process.env.Email}`,
+        to: user.email,
+        subject: "Verify link",
+        html: `<p> Hello ${user.username}, please verify
+        your email by clicking this link </p>
+        <p>${URL}</p>
+        `,
+      };
+  transporter.sendMail(mailoptions, (error) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("verification email sent");
+    }
+  })
+    
+    await User.updateOne({ email }, { resetToken });
+    res.json({ message: 'Reset password link has been sent to your email' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error});
+  }
 }
 
 const ResetPassword = async (req, res) => {
-  const { email, password, newpassword } = req.body;
+ try {
+   const { resetToken, password } = req.body;
+   const decodedToken = jwt.verify(resetToken, process.env.RESET_SECRET);
+   const user = await User.findOne({ email: decodedToken.user_email });
+   if (!user) {
+     return res.status(404).json({ message: "User not found" });
+   }
+   const passwordHash = await bcrypt.hash(password, 10);
+   await User.updateOne(
+     { email: user.email },
+     { password: passwordHash, resetToken: null }
+   );
+   res.json({ message: "Password reset successful" });
+ } catch (error) {
+   if (error.name === "JsonWebTokenError") {
+     return res.status(400).json({ message: "Invalid or expired token" });
+   }
+   console.error(error);
+   res.status(500).json({ message: err });
+ }
+};
 
-        try {
-            const user = await User.findOne({ email });
-            const user2 = await User.resetpwd(password, newpassword)
-            if (user2) {
-                res.status(400).json({ error: "passwords don't match" });
-            }
-            if (!user) {
-                res.status(400).json({ error: "User don't exists" });
-            } else{
-                user.password = await bcrypt.hash(req.body.password, 10);
-                await user.save();
-        
-                res.status(200).json({ message: "password changed" });
-            }
-    
-        } catch (error) {
-            res.status(400).json({error: error.message})
-        }
-}
+const updatePassword = async (req, rew) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+      updateStatus: false,
+      userFound: false,
+    });
+  }
+  //update pwd
+  const update = await User.updateOne(
+    { email: user.email },
+    { password: bcrypt.hashSync(password, 8) }
+  );
+
+  if (!update) {
+    return res.status(500).json({
+      message: "Failed to update password",
+      updateStatus: false,
+      userFound: true,
+    });
+  }
+  //delete reset token
+  await User.updateOne({ email }, { $unset: { resetpwdToken: 1 } });
+  return res.json({
+    message: "Password updated successfully",
+    updateStatus: true,
+    userFound: true,
+  });
+} 
 
 const logout = async (req, res) => {
  try {
@@ -166,5 +200,6 @@ module.exports = {
   verifyEmail,
   ForgetPassword,
   ResetPassword,
+  updatePassword,
   logout,
 };
