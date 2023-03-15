@@ -12,9 +12,11 @@ router.post(
 
 router.post("/login", controller.login);
 router.post("/verify-email", controller.verifyEmail, verifyToken);
-router.post("/forgot-password", controller.forgotPassword, verifyToken);
-router.get("/reset-password/:token", controller.verifyLink, verifyToken);
-router.get("/reset-password/:token", controller.updatePassword, verifyToken);
+router.post("/send_recovery_email", (req, res) => {
+  controller.sendRecoveryEmail(req.body)
+    .then((response) => res.send(response.message))
+    .catch((error) => res.status(500).send(error.message));
+});
 // logout router
 router.post("/logout", controller.logout, verifyToken);
 

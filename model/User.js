@@ -45,11 +45,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(Speciality),
   },
-  emailtoken:{
-    type:String
+  emailtoken: {
+    type: String,
   },
-  resetPasswordToken:{
-    type:String
+  resetPasswordToken: {
+    type: String,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
   }
   // failedAttempts:{
   //   count :{

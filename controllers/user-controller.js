@@ -5,8 +5,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
-
-
+const nodemailer = require("nodemailer");
 
 const signup = async (req, res) => {
   try {
@@ -152,150 +151,61 @@ const verifyEmail = async (req, res) => {
 };
 //todo template html, token in db
 
-const forgotPassword = async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // user exists, create a one-time link valid for 15min
-    const payload = {
-      user_email: user.email,
-    };
-    const options = {
-      expiresIn: "1h",
-    };
-    const token = jsonwebtoken.sign(
-      payload,
-      process.env.RESET_SECRET,
-      options
-    );
-
-    // send email with reset password link
-    const link = `http://localhost:3000/api/reset-password/${token}`;
-    const mailOption = {
-      from: process.env.Email,
-      to: req.body.email,
-      subject: "Reset Password",
-      html: `<p>Hello ${user.firstname} ${user.lastname},</p>
-            <p>Please click on the following link to reset your password:</p>
-            <p><a href="${link}">${link}</a></p>`,
-    };
-    await sendEmail(mailOption); // assuming sendEmail is defined and working correctly
-    await User.updateOne(
-      { email: req.body.email },
-      { resetPasswordToken: token, resetPasswordExpires: Date.now() + 900000 }
-    );
-
-    console.log(link);
-    res.status(200).json({ message: "Email sent", link });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error sending email" });
-  }
-};
-
-
-
-
-const verifyLink = async (req, res) => {
-  const { email, token } = req.body;
-
-  try {
-    const user = await User.findOne({
-      email,
-      resetPasswordToken: token,
+function sendRecoveryEmail({ email, OTP }) {
+  return new Promise((resolve, reject) => {
+    const transporter = nodemailer.createTransport({
+      service: "hotmail",
+      auth: {
+        user: `${process.env.Email}`,
+        pass: `${process.env.password}`,
+      },
     });
 
-    if (!user) {
-      return res.json({
-        valid: false,
-        message: "Invalid reset Token!",
-      });
-    }
-
-    if (token == user.resetPasswordToken) {
-      const decodedToken = jsonwebtoken.verify(token, process.env.RESET_SECRET);
-      // Check if the reset token has expired
-      const resetTime = new Date(decodedToken.iat * 1000);
-      console.log("resetTime", resetTime);
-      const expirationTime = new Date(resetTime.getTime() + 60 * 60 * 1000); // 1h expiration
-      const currentTime = new Date();
-      if (currentTime > expirationTime) {
-        //delete reset token
-        await User.updateOne({ email }, { $unset: { resetPasswordToken: 1 } });
-        return res.json({
-          valid: false,
-          message: "reset token expired !",
-        });
-      }
-      return res.json({
-        valid: true,
-        message: "reset token checked !",
-      });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-const updatePassword = async (req, res) => {
-  const { email, password, resetToken } = req.body;
+    const mail_configs = {
+      from: `"Health Bridge" <${process.env.Email}>`,
+      to: email,
+      subject: "PASSWORD RECOVERY",
+      html: `<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>HealthBridge - OTP Email Template</title>
   
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        updateStatus: false,
-        userFound: false,
-      });
-    }
 
-    const isTokenValid = await checkResetToken(email, resetToken);
-    if (!isTokenValid) {
-      return res.status(400).json({
-        message: "Invalid reset Token!",
-        updateStatus: false,
-      });
-    }
-
-    // Update password
-    const update = await User.updateOne(
-      { email: user.email },
-      { password: bcrypt.hashSync(password, 8) }
-    );
-
-    if (!update) {
-      return res.status(500).json({
-        message: "Failed to update password",
-        updateStatus: false,
-        userFound: true,
-      });
-    }
-
-    // Delete reset password token
-    await User.updateOne(
-      { email },
-      { $unset: { resetPasswordToken: 1 } }
-    );
-
-    return res.status(200).json({
-      message: "Password updated successfully",
-      updateStatus: true,
-      userFound: true,
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+  <div style="margin:50px auto;width:70%;padding:20px 0">
+    <div style="border-bottom:1px solid #eee">
+      <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">HealthBridge Admin</a>
+    </div>
+    <p style="font-size:1.1em">Hi,</p>
+    <p>Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
+    <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
+    <p style="font-size:0.9em;">Regards,<br />HealthBridge </p>
+    <hr style="border:none;border-top:1px solid #eee" />
+    <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+      <p>HealthBridge Inc</p>
+      <p>1600 Amphitheatre Parkway</p>
+      <p>Tunisia</p>
+    </div>
+  </div>
+</div>
+<!-- partial -->
+  
+</body>
+</html>`,
+    };
+    transporter.sendMail(mail_configs, function (error, info) {
+      if (error) {
+        console.log(error);
+        return reject({ message: `An error has occurred` });
+      }
+      return resolve({ message: "Email sent successfully" });
     });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Failed to update password",
-      updateStatus: false,
-      userFound: false,
-    });
-  }
-
-};
+  });
+}
 
 const logout = async (req, res) => {
   // Retrieve the JWT token from the request header
@@ -310,7 +220,7 @@ const logout = async (req, res) => {
       });
     }
 
-    // Perform logout logic here
+    // Perform logout logic here : destroy the user's session to log them out
     req.session.destroy(function (err) {
       if (err) {
         console.log(err);
@@ -321,16 +231,14 @@ const logout = async (req, res) => {
     });
 
     // Respond with a success message
-    return res.json({ message: "Successfully logged out" });
+    return res.status(200).json({ message: "Successfully logged out" });
   });
-}
+};
 
 module.exports = {
   signup,
   login,
   verifyEmail,
-  forgotPasswod,
-  verifyLink,
-  updatePassword,
-  logout
+  sendRecoveryEmail,
+  logout,
 };
