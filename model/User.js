@@ -78,6 +78,8 @@ const userSchema = new mongoose.Schema({
   resetpwdToken: String,
 });
 
+
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

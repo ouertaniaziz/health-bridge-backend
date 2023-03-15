@@ -67,7 +67,9 @@ const login = async (req, res) => {
     );
     if (!passwordIsValid) {
       return res.status(401).json({ message: "Invalid password" });
+      
     }
+    
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
@@ -82,6 +84,7 @@ const login = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
+
 
 const verifyEmail = async (req, res) => {
   try {
@@ -99,6 +102,7 @@ const verifyEmail = async (req, res) => {
     res.status(404).json(error.message);
   }
 };
+
 //todo template html, token in db
 
 const ForgetPassword = async (req, res) => {
@@ -106,7 +110,7 @@ const ForgetPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
     const payload = { user_email: user.email };
     const options = { expiresIn: "1h" };
@@ -133,8 +137,8 @@ const ForgetPassword = async (req, res) => {
     await User.updateOne({ email }, { resetToken });
     res.json({ message: "Reset password link has been sent to your email" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error });
+    console.log(error);
+    res.status(500).json({ message: "Error sending email" });
   }
 };
 
@@ -204,7 +208,6 @@ const logout = async (req, res) => {
     res.status(401).json({ message: "Unauthorized" });
   }
 };
-
 
 const client = mailgun.client({ username: 'api', key: '5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190' || '' });
 (async () => {
