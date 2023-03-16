@@ -76,8 +76,21 @@ const userSchema = new mongoose.Schema({
     default: 0,
   },
   resetpwdToken: String,
+  resetPasswordExpire: Date,
 });
 
+userSchema.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  this.resetpwdToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.resetPasswordExpire = Date.now() + 15 * (60 * 1000); // 15mins
+
+  return resetToken;
+};
 
 
 const User = mongoose.model("User", userSchema);
