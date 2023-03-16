@@ -37,11 +37,10 @@ const signup = async (req, res) => {
       symptoms: req.body.symptoms,
       testResults: req.body.testResults,
       gender: req.body.sex,
-      IdCardDoctor:req.body.IdCardDoctor,
-      DateOfGraduation:req.body.DateOfGraduation,
+      IdCardDoctor: req.body.IdCardDoctor,
+      DateOfGraduation: req.body.DateOfGraduation,
       DateofCreation: req.body.DateofCreation,
       isVerified: false,
-    
     });
     console.log("here!");
     await user.save();
@@ -302,14 +301,23 @@ const updatePassword = async (req, res) => {
 };
 
 const client = mailgun.client({ username: "api", key: "API_KEY" || "" });
-(async () => {
+async () => {
   try {
     const validationRes = await client.validate.get("andy.houssem@gmail.com");
     console.log("validationRes", validationRes);
   } catch (error) {
     console.error(error);
+    res.status(500).send({ error: error.message });
   }
-})();
+};
+// (async (email) => {
+//   try {
+//     const validationRes = await client.validate.get("andy.houssem@gmail.com");
+//     console.log("validationRes", validationRes);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// })();
 module.exports = {
   signup,
   login,
@@ -317,4 +325,5 @@ module.exports = {
   forgotPassword,
   verifyLink,
   updatePassword,
+  email_real_time,
 };
