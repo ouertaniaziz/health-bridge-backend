@@ -6,6 +6,9 @@ const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
 const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
+const { forgotpwd } = require("../utils/forgetpwd");
+
+
 
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
@@ -41,7 +44,7 @@ const signup = async (req, res) => {
       DateOfGraduation: req.body.DateOfGraduation,
       DateofCreation: req.body.DateofCreation,
       isVerified: false,
-      banned: false
+      banned: false,
     });
     console.log("here!");
     await user.save();
@@ -61,15 +64,34 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
     const passwordIsValid = await bcrypt.compare(
       req.body.password,
       user.password
     );
     if (!passwordIsValid) {
-      return res.status(401).json({ message: "Invalid password" });
+      // Increment failed login attempts and check for ban
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      if (user.failedLoginAttempts >= 3) {
+        const banTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour ban
+        user.bannedUntil = new Date(banTime);
+        await user.save();
+        user.failedLoginAttempts = 0; // Reset failed login attempts
+        return res.status(401).json({
+          message:
+            "Your account has been temporarily banned due to multiple failed login attempts. Please try again later.",
+          bannedUntil: user.bannedUntil,
+        });
+      }
+      await user.save();
       
+      return res.status(401).json({ message: "Invalid password" });
     }
-    
+
+    // Reset failed login attempts on successful login
+    user.failedLoginAttempts = 0;
+    await user.save();
+
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
@@ -108,93 +130,64 @@ const verifyEmail = async (req, res) => {
 const ForgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email)
+      return res.status(400).json({ error: "Please enter your email" });
+
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    const payload = { user_email: user.email };
-    const options = { expiresIn: "1h" };
-    const resetToken = jwt.sign(payload, process.env.RESET_SECRET, options);
-    const URL = process.env.CLIENT_URL;
-    const transporter = nodemailer.createTransport();
-    const mailoptions = {
-      from: `"Health Bridge" <${process.env.Email}`,
+    if (!user)
+      return res.status(404).json({ error: "No email could not be send" });
+
+    const resetToken = user.getResetPasswordToken();
+    await user.save();
+    
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const message = forgotpwd(resetUrl, user);
+
+    const result = sendEmail({
       to: user.email,
-      subject: "Verify link",
-      html: `<p> Hello ${user.username}, please verify
-        your email by clicking this link </p>
-        <p>${URL}</p>
-        `,
-    };
-    transporter.sendMail(mailoptions, (error) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("verification email sent");
-      }
+      subject: "Password Reset Request",
+      text: message,
     });
 
-    await User.updateOne({ email }, { resetToken });
-    res.json({ message: "Reset password link has been sent to your email" });
+    if (await result)
+      return res.status(200).json({
+        message: `An email has been sent to ${email} with further instructions.`,
+      });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error sending email" });
+    res.status(500).json({ error: error.message });
   }
 };
 
 const ResetPassword = async (req, res) => {
   try {
-    const { resetToken, password } = req.body;
-    const decodedToken = jwt.verify(resetToken, process.env.RESET_SECRET);
-    const user = await User.findOne({ email: decodedToken.user_email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const passwordHash = await bcrypt.hash(password, 10);
-    await User.updateOne(
-      { email: user.email },
-      { password: passwordHash, resetToken: null }
-    );
-    res.json({ message: "Password reset successful" });
+    const { password, resetToken } = req.body;
+
+    if (!resetToken || !password)
+      return res.status(400).json({ error: "Invalid Request" });
+
+    const resetpwdToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetpwdToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user)
+      return res.status(400).json({ error: "Invalid Token or expired" });
+
+    user.password = password;
+    user.resetpwdToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password has been reset" });
   } catch (error) {
-    if (error.name === "JsonWebTokenError") {
-      return res.status(400).json({ message: "Invalid or expired token" });
-    }
-    console.error(error);
-    res.status(500).json({ message: err });
+    res.status(500).json({ error: error.message });
   }
-};
-
-const updatePassword = async (req, rew) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({
-      message: "User not found",
-      updateStatus: false,
-      userFound: false,
-    });
-  }
-  //update pwd
-  const update = await User.updateOne(
-    { email: user.email },
-    { password: bcrypt.hashSync(password, 8) }
-  );
-
-  if (!update) {
-    return res.status(500).json({
-      message: "Failed to update password",
-      updateStatus: false,
-      userFound: true,
-    });
-  }
-  //delete reset token
-  await User.updateOne({ email }, { $unset: { resetpwdToken: 1 } });
-  return res.json({
-    message: "Password updated successfully",
-    updateStatus: true,
-    userFound: true,
-  });
 };
 
 const logout = async (req, res) => {
@@ -224,6 +217,5 @@ module.exports = {
   verifyEmail,
   ForgetPassword,
   ResetPassword,
-  updatePassword,
   logout
 };
