@@ -8,10 +8,8 @@ const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { forgotpwd } = require("../utils/forgetpwd");
 
-
-
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
+const formData = require("form-data");
+const Mailgun = require("mailgun.js");
 
 const mailgun = new Mailgun(formData);
 
@@ -84,7 +82,7 @@ const login = async (req, res) => {
         });
       }
       await user.save();
-      
+
       return res.status(401).json({ message: "Invalid password" });
     }
 
@@ -100,13 +98,13 @@ const login = async (req, res) => {
       username: user.username,
       message: "OK",
       expiresIn: process.env.JWT_EXPIRE_IN,
+      role: user.role,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
   }
 };
-
 
 const verifyEmail = async (req, res) => {
   try {
@@ -139,7 +137,7 @@ const ForgetPassword = async (req, res) => {
 
     const resetToken = user.getResetPasswordToken();
     await user.save();
-    
+
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
     const message = forgotpwd(resetUrl, user);
 
@@ -202,11 +200,14 @@ const logout = async (req, res) => {
   }
 };
 
-const client = mailgun.client({ username: 'api', key: '5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190' || '' });
+const client = mailgun.client({
+  username: "api",
+  key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
+});
 (async () => {
   try {
-    const validationRes = await client.validate.get('andy.houssem@gmail.com');
-    console.log('validationRes', validationRes);
+    const validationRes = await client.validate.get("andy.houssem@gmail.com");
+    console.log("validationRes", validationRes);
   } catch (error) {
     console.error(error);
   }
@@ -217,5 +218,5 @@ module.exports = {
   verifyEmail,
   ForgetPassword,
   ResetPassword,
-  logout
+  logout,
 };
