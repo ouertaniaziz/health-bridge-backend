@@ -196,7 +196,13 @@ const logout = async (req, res) => {
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     // If JWT is invalid or missing, send an error response
-    res.status(401).json({ message: "Unauthorized" });
+    if (error.name === "JsonWebTokenError") {
+      res.status(401).json({ message: "Invalid token" });
+    } else if (error.name === "TokenExpiredError") {
+      res.status(401).json({ message: "Token expired" });
+    } else {
+      res.status(401).json({ message: "Unauthorized" });
+    }
   }
 };
 
@@ -204,18 +210,15 @@ const client = mailgun.client({
   username: "api",
   key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
 });
-const email_real_time = async (req,res) => {
-  
+const email_real_time = async (req, res) => {
   try {
-  
     const validationRes = await client.validate.get(req.body.emaila);
-    console.log(req.body)
+    console.log(req.body);
     console.log("validationRes", validationRes);
-    res.send(validationRes)
-  
+    res.send(validationRes);
   } catch (error) {
     console.error(error);
-    res.status(500).send({error:error.message})
+    res.status(500).send({ error: error.message });
   }
 };
 
@@ -226,5 +229,5 @@ module.exports = {
   ForgetPassword,
   ResetPassword,
   logout,
-  email_real_time
+  email_real_time,
 };
