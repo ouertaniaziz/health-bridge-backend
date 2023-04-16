@@ -4,7 +4,8 @@ const router = require("./routes/user-routes");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const blogrouter = require('./routes/blog-routes');
-const forumrouter= require('./routes/forum-routes')
+const forumrouter= require('./routes/forum-routes');
+const prescriptionrouter= require('./routes/prescription-routes');
 
 
 var bodyParser = require("body-parser");
@@ -20,6 +21,8 @@ app.use("/api", router);
 app.use("/api", blogrouter);
 
 app.use("/api", forumrouter);
+
+app.use("/api", prescriptionrouter);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
