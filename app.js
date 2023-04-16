@@ -6,6 +6,9 @@ const dotenv = require("dotenv");
 const blogrouter = require('./routes/blog-routes');
 const forumrouter= require('./routes/forum-routes');
 const prescriptionrouter= require('./routes/prescription-routes');
+const patientrouter = require('./routes/patient-routes');
+const doctorrouter = require('./routes/doctor-routers'); 
+const appointementrouter = require('./routes/appointement-routes')
 
 
 var bodyParser = require("body-parser");
@@ -23,6 +26,12 @@ app.use("/api", blogrouter);
 app.use("/api", forumrouter);
 
 app.use("/api", prescriptionrouter);
+
+app.use("/api", patientrouter);
+
+app.use("/api", doctorrouter);
+
+app.use("/api", appointementrouter);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
