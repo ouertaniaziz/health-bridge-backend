@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const blogrouter = require('./routes/blog-routes');
+const forumrouter= require('./routes/forum-routes')
 
 
 var bodyParser = require("body-parser");
@@ -14,6 +16,10 @@ const app = express();
 app.use(cors({ origin: "http://localhost:3001" }));
 app.use(express.json());
 app.use("/api", router);
+
+app.use("/api", blogrouter);
+
+app.use("/api", forumrouter);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());

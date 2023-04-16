@@ -6,12 +6,10 @@ const { sendverificationMail } = require("../utils/sendemailverification");
 const sendEmail = require("../utils/createMail");
 const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
-const { forgotpwd } = require("../utils/forgetpwd");
+const { sendResetPassword } = require("../utils/createMail");
 
-
-
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
+const formData = require("form-data");
+const Mailgun = require("mailgun.js");
 
 const mailgun = new Mailgun(formData);
 
@@ -61,6 +59,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
+    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -84,7 +83,7 @@ const login = async (req, res) => {
         });
       }
       await user.save();
-      
+
       return res.status(401).json({ message: "Invalid password" });
     }
 
@@ -98,6 +97,7 @@ const login = async (req, res) => {
     res.status(200).json({
       accessToken: token,
       username: user.username,
+      role: user.role,
       message: "OK",
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
@@ -106,7 +106,6 @@ const login = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
-
 
 const verifyEmail = async (req, res) => {
   try {
@@ -125,68 +124,51 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-//todo template html, token in db
-
-const ForgetPassword = async (req, res) => {
+const ResetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email)
-      return res.status(400).json({ error: "Please enter your email" });
-
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(404).json({ error: "No email could not be send" });
-
-    const resetToken = user.getResetPasswordToken();
-    await user.save();
-    
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-    const message = forgotpwd(resetUrl, user);
-
-    const result = sendEmail({
-      to: user.email,
-      subject: "Password Reset Request",
-      text: message,
-    });
-
-    if (await result)
-      return res.status(200).json({
-        message: `An email has been sent to ${email} with further instructions.`,
+    crypto.randomBytes(32, (err, buffer) => {
+      if (err) {
+        console.log(err);
+        throw new Error("Failed to reset password");
+      }
+      const token = buffer.toString("hex");
+      User.findOne({ email: req.body.email }).then((user) => {
+        if (!user) {
+          return res
+            .status(422)
+            .json({ error: "User doesn't exist with that email" });
+        }
+        user.resetToken = token;
+        user.expireToken = Date.now() + 3600000;
+        user.save().then((result) => {
+          sendResetPassword(user);
+          res.json({ message: "Check your email" });
+        });
       });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    });
+  } catch (err) {
+    console.log(err.message); // log the error message
+    throw new Error("Failed to reset password");
   }
 };
 
-const ResetPassword = async (req, res) => {
+const UpdatePassword = async (req, res) => {
+  // replace _id with email
   try {
-    const { password, resetToken } = req.body;
-
-    if (!resetToken || !password)
-      return res.status(400).json({ error: "Invalid Request" });
-
-    const resetpwdToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-
-    const user = await User.findOne({
-      resetpwdToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
-
-    if (!user)
-      return res.status(400).json({ error: "Invalid Token or expired" });
-
-    user.password = password;
-    user.resetpwdToken = undefined;
-    user.resetPasswordExpire = undefined;
-
-    await user.save();
-
-    res.status(200).json({ message: "Password has been reset" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email }); // replace _id with email
+    if (!user) {
+      throw new Error("User not found");
+    }
+    console.log(email); // replace _id with email
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword);
+    user.password = hashedPassword;
+    const updatedUser = await user.save();
+    return updatedUser;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to update password");
   }
 };
 
@@ -194,19 +176,24 @@ const logout = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1]; // Get JWT token from Authorization header
     await jwt.verify(token, process.env.SECRET); // Verify JWT token
-    // If JWT is valid, simply send a success response
-    res.status(200).json({ message: "Logged out successfully" });
+
+    // If JWT is valid, send a success response
+    return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
+    console.error(error);
     // If JWT is invalid or missing, send an error response
-    res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };
 
-const client = mailgun.client({ username: 'api', key: '5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190' || '' });
+const client = mailgun.client({
+  username: "api",
+  key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
+});
 (async () => {
   try {
-    const validationRes = await client.validate.get('andy.houssem@gmail.com');
-    console.log('validationRes', validationRes);
+    const validationRes = await client.validate.get("andy.houssem@gmail.com");
+    console.log("validationRes", validationRes);
   } catch (error) {
     console.error(error);
   }
@@ -215,7 +202,7 @@ module.exports = {
   signup,
   login,
   verifyEmail,
-  ForgetPassword,
   ResetPassword,
-  logout
+  UpdatePassword,
+  logout,
 };
