@@ -13,7 +13,6 @@ const patientSchema = new mongoose.Schema({
   },
   appointmentDate: {
     type: Date,
-    required: true,
   },
   medicalHistory: {
     type: String,
