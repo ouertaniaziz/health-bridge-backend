@@ -4,7 +4,6 @@ var Schema = mongoose.Schema;
 var Appointement = new Schema({
   Firstname: String,
   Lastname: String,
-  Email: String,
   Phone: String,
   StartDate: Date,
   EndDate: Date,

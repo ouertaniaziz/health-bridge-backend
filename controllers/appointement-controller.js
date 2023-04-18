@@ -19,7 +19,6 @@ const appointment_create_post = async (req, res) => {
     const appointment = await Appointement.create({
       Firstname,
       Lastname,
-      Email,
       Phone,
       StartDate,
       EndDate,
@@ -35,28 +34,32 @@ const appointment_delete = (req, res) => {
   const id = req.params.id;
 
   Appointement.findByIdAndDelete(id)
-    .then((result) => {
-      res.json();
+    .then(() => {
+      res.status(200).send({ msg: "appointment deleted" });
     })
     .catch((err) => {
       console.log(err);
+      res.status(500).send(err);
     });
 };
+
 const UpdateAppointement = async (req, res) => {
   try {
     const A = await Appointement.updateOne(
       { _id: req.params.id },
       { $set: { ...req.body } }
     );
-    console.log(A);
-    if (A.modifiedCount) {
+    if (A.nModified) {
       return res.send({ msg: "updated" });
+    } else if (A.n == 0) {
+      return res.status(404).send({ msg: "appointment not found" });
     }
     res.send({ msg: "there is no modification" });
   } catch (error) {
-    res.send({ msg: "can not modify it" });
+    res.status(500).send({ msg: "can not modify it" });
   }
 };
+
 const get_one_appointment = async (req, res) => {
   const id = req.params.id;
   try {

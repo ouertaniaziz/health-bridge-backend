@@ -4,7 +4,7 @@ const router = express.Router();
 const appointmentcontroller = require("../controllers/appointement-controller");
 
 
-router.get("/appointement/getAll/:id", appointmentcontroller.get_appointment);
+router.get("/appointement/getAll", appointmentcontroller.get_appointment);
 router.get("/appointement/:id", appointmentcontroller.get_one_appointment);
 router.post("/appointement/:id", appointmentcontroller.appointment_create_post);
 router.delete(
