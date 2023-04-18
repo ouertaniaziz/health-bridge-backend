@@ -13,7 +13,7 @@ const get_appointment = async (req, res) => {
 };
 const appointment_create_post = async (req, res) => {
   const User = req.params.id;
-  const { Firstname, Lastname, Email, Phone, StartDate, EndDate } = req.body;
+  const { Firstname, Lastname, Phone, StartDate, EndDate } = req.body;
 
   try {
     const appointment = await Appointement.create({
