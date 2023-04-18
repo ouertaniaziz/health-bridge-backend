@@ -8,8 +8,7 @@ const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
 
-const formData = require("form-data");
-const Mailgun = require("mailgun.js");
+
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 

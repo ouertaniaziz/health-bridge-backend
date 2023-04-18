@@ -12,7 +12,7 @@ router.post(
 
 router.post("/login", controller.login);
 router.post("/verify-email", controller.verifyEmail, verifyToken);
-router.post("/real_time", controller.email_real_time);
+// router.post("/real_time", controller.email_real_time);
 router.post("/ResetPassword", controller.ResetPassword);
 router.put("/UpdatePassword/:email", controller.UpdatePassword);
 // logout router
