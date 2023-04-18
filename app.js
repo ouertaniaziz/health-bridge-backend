@@ -24,17 +24,11 @@ app.use(express.json());
 
 app.use("/api", router);
 app.use("/api/doctor", doctorRouter);
-
 app.use("/api", prescriptionrouter);
-
 app.use("/api", patientrouter);
-
 app.use("/api", doctorrouter);
-
 app.use("/api", appointementrouter);
-
 app.use("/api", postrouter);
-
 app.use("/api", doctor);
 
 // parse requests of content-type - application/json
