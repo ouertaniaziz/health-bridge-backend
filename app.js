@@ -1,8 +1,11 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
+const donationroute= require("./routes/Donor-routes")
 const cors = require("cors");
 const dotenv = require("dotenv");
+
 
 
 var bodyParser = require("body-parser");
@@ -12,8 +15,11 @@ dotenv.config();
 const app = express();
 
 app.use(cors({ origin: "http://localhost:3001" }));
+
 app.use(express.json());
 app.use("/api", router);
+app.use("/api", donationroute);
+
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
