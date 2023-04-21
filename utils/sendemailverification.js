@@ -1,7 +1,7 @@
 const { createmailtransportr } = require("./createMail");
 const ejs = require("ejs");
 const sendverificationMail = async (user) => {
-  const transporter = createmailtransportr();
+  const transporter = createmailtransportr()
   const context = {
     username: user.username,
     firstname: user.firstname,
