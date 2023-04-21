@@ -1,6 +1,7 @@
 const express = require("express");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
+const User = require("../model/User");
 
 const removePatientFromDoctor = async (req, res) => {
   const { doctorId, patientId } = req.params;
@@ -27,4 +28,15 @@ const removePatientFromDoctor = async (req, res) => {
   }
 };
 
-module.exports = removePatientFromDoctor;
+const getDoctor = async (req, res) => {
+  try {
+    console.log(req.body);
+    const doctor = await User.findById(req.body.userId);
+    console.log(doctor);
+    if (!doctor) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(doctor);
+  } catch (error) {}
+};
+module.exports = { removePatientFromDoctor, getDoctor };
