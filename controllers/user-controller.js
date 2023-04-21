@@ -99,6 +99,7 @@ const login = async (req, res) => {
       message: "OK",
       expiresIn: process.env.JWT_EXPIRE_IN,
       role: user.role,
+      id: user._id,
     });
   } catch (error) {
     console.log(error);

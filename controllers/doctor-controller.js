@@ -2,7 +2,7 @@ const User = require("../model/User");
 
 const getDoctor = async (req, res) => {
   try {
-    console.log(req.body.userId);
+    console.log(req.body);
     const doctor = await User.findById(req.body.userId);
     console.log(doctor);
     if (!doctor) {
