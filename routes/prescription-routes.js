@@ -1,66 +1,41 @@
 const express = require("express");
 const router = express.Router();
-const Prescription = require("../model/Prescription");
+const prescriptionController = require("../controllers/prescription-controller");
+// const authorize = require("../middleware/authorize");
 
-// Create a new prescription
-router.post("/addprescription", async (req, res) => {
-  try {
-    const { doctor, patient, medication, dosage, frequency, startDate, endDate, createdAt } = req.body;
-    const prescription = await Prescription.create({
-      doctor,
-      patient,
-      medication,
-      dosage,
-      frequency,
-      startDate,
-      endDate,
-      createdAt
-    });
-    res.json(prescription);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// create prescription endpoint with authorization for doctor role
+router.post(
+  "/",
+  // authorize(["doctor"]),
+  prescriptionController.createPrescription
+);
 
-// Get all prescriptions
-router.get("/rescriptions", async (req, res) => {
-  try {
-    const prescriptions = await Prescription.find();
-    res.json(prescriptions);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// get all prescriptions endpoint with authorization for multiple roles
+router.get(
+  "/",
+  // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
+  prescriptionController.getAllPrescriptions
+);
 
-// Update a prescription
-router.patch("/updateprescription/:id", async (req, res) => {
-  try {
-    const prescription = await Prescription.findById(req.params.id);
-    const { medication, dosage, frequency } = req.body;
-    if (medication) {
-      prescription.medication = medication;
-    }
-    if (dosage) {
-      prescription.dosage = dosage;
-    }
-    if (frequency) {
-      prescription.frequency = frequency;
-    }
-    await prescription.save();
-    res.json(prescription);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// get prescription by ID endpoint with authorization for multiple roles
+router.get(
+  "/:id",
+  // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
+  prescriptionController.getPrescriptionById
+);
 
-// Delete a prescription
-router.delete("/deleteprescription/:id", async (req, res) => {
-  try {
-    await Prescription.findByIdAndDelete(req.params.id);
-    res.json({ message: "Prescription deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// update prescription endpoint with authorization for doctor role
+router.put(
+  "/:id",
+  // authorize(["doctor"]),
+  prescriptionController.updatePrescription
+);
+
+// delete prescription endpoint with authorization for doctor role
+router.delete(
+  "/:id",
+  // authorize(["doctor"]),
+  prescriptionController.deletePrescription
+);
 
 module.exports = router;

@@ -5,14 +5,12 @@ const donationroute = require("./routes/Donor-routes");
 
 const cors = require("cors");
 const dotenv = require("dotenv");
-const prescriptionrouter = require("./routes/prescription-routes");
-const patientrouter = require("./routes/patient-routes");
-const doctorrouter = require("./routes/doctor-routers");
-const appointementrouter = require("./routes/appointement-routes");
-const postrouter = require("./routes/post-routes");
-const doctor = require("./routes/doctor-routers");
+const prescriptionrouter= require('./routes/prescription-routes');
+const patientrouter = require('./routes/patient-routes');
+const appointementrouter = require('./routes/appointement-routes');
+const donor = require('./routes/donor-router');
 
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 
 dotenv.config();
 
@@ -27,10 +25,8 @@ app.use("/api", donationroute);
 
 app.use("/api", prescriptionrouter);
 app.use("/api", patientrouter);
-app.use("/api", doctorrouter);
 app.use("/api", appointementrouter);
-app.use("/api", postrouter);
-app.use("/api", doctor);
+app.use("/api", donor);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
