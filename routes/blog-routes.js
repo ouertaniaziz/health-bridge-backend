@@ -55,6 +55,7 @@ router.post("/blogs/:id/like", authenticateUser, controller.likePost);
 router.post("/blogs/:id/dislike", authenticateUser, controller.dislikePost);
 
 // Comment on a blog
+
 router.post("/blogs/:id/comment", authenticateUser, controller.commentPost);
 
 module.exports = router;
