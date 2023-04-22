@@ -3,8 +3,6 @@ const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
 const doctorRouter = require("./routes/doctor-routes");
 
-const doctorRouter = require("./routes/doctor-routes");
-
 const cors = require("cors");
 const dotenv = require("dotenv");
 const prescriptionrouter= require('./routes/prescription-routes');
