@@ -1,5 +1,5 @@
 const verifysignup = require("../middleware/verifysignup");
-const donorcontroller = require("../controllers/Donor-controller");
+const donorcontroller = require("../controllers/donor-controller");
 const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../middleware/authjwt");

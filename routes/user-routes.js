@@ -1,4 +1,4 @@
-const verifysignup = require("../middleware/verifysignup");
+const  verifysignup = require("../middleware/verifysignup");
 const controller = require("../controllers/user-controller");
 const express = require("express");
 const router = express.Router();

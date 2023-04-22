@@ -1,6 +1,7 @@
 const User = require("../model/User");
 const Donor = require("../model/Donor")
 
+
 const checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Check username
   console.log("Checking username");
@@ -58,6 +59,8 @@ const checkDuplicateNameOrEmail = (req, res, next) => {
     });
   });
 };
+
+
 const verifysignup = {
   checkDuplicateUsernameOrEmail,
   checkDuplicateNameOrEmail
