@@ -9,6 +9,7 @@ const createPrescription = async (req, res) => {
       medicine: req.body.medicine,
       dosage: req.body.dosage,
       instructions: req.body.instructions,
+      traitement: req.body.traitement,
     });
 
     const savedPrescription = await prescription.save();
@@ -32,7 +33,6 @@ const getAllPrescriptions = async (req, res) => {
   }
 };
 
-
 const getPrescriptionById = async (req, res) => {
   try {
     const prescription = await Prescription.findById(req.params.id)
@@ -49,7 +49,6 @@ const getPrescriptionById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 const updatePrescription = async (req, res) => {
   try {
@@ -71,9 +70,6 @@ const updatePrescription = async (req, res) => {
   }
 };
 
-
-
-
 const deletePrescription = async (req, res) => {
   try {
     const prescription = await Prescription.findByIdAndDelete(req.params.id);
@@ -88,11 +84,10 @@ const deletePrescription = async (req, res) => {
   }
 };
 
-
 module.exports = {
-    createPrescription,
-    getAllPrescriptions,
-    getPrescriptionById,
-    updatePrescription,
-    deletePrescription,
-}
+  createPrescription,
+  getAllPrescriptions,
+  getPrescriptionById,
+  updatePrescription,
+  deletePrescription,
+};

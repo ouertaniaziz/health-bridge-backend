@@ -16,10 +16,7 @@ const prescriptionSchema = new mongoose.Schema({
     default: Date.now,
     required: true,
   },
-  medicine: {
-    type: String,
-    required: true,
-  },
+
   dosage: {
     type: String,
     required: true,
@@ -28,6 +25,12 @@ const prescriptionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  traitement: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Traitement",
+    },
+  ],
 });
 
 const Prescription = mongoose.model("Prescription", prescriptionSchema);
