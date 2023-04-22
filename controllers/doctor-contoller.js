@@ -31,12 +31,14 @@ const removePatientFromDoctor = async (req, res) => {
 const getDoctor = async (req, res) => {
   try {
     console.log(req.body);
-    const doctor = await User.findById(req.body.userId);
+    const doctor = await Doctor.findOne({ user: req.body.userId }).populate(
+      "user"
+    );
     console.log(doctor);
     if (!doctor) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json(doctor);
+    res.status(200).json({ doctor, user: doctor.user });
   } catch (error) {}
 };
 module.exports = { removePatientFromDoctor, getDoctor };
