@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const doctorSchema = new mongoose.Schema({
   user: {
@@ -17,7 +17,7 @@ const doctorSchema = new mongoose.Schema({
   },
   speciality: {
     type: String,
-    enum: ["Carcinologist", "Cardiologist", "Psychiatrist"],
+    enum: ["Carcinologist", "cardiologist", "Psychiatrist"],
     required: true,
   },
   patients: [
@@ -28,7 +28,6 @@ const doctorSchema = new mongoose.Schema({
   ],
 });
 
-const Doctor = mongoose.model('Doctor', doctorSchema);
+const Doctor = mongoose.model("Doctor", doctorSchema);
 
 module.exports = Doctor;
-

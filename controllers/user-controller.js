@@ -7,7 +7,7 @@ const sendEmail = require("../utils/createMail");
 const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
-
+const Doctor = require("../model/Doctor");
 
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
@@ -46,7 +46,19 @@ const signup = async (req, res) => {
       banned: false,
     });
     console.log("here!");
-    await user.save();
+    if (req.body.role === "doctor") {
+      const doctor = new Doctor({
+        user: user._id,
+        name: req.body.name,
+        password: hashedPassword,
+        speciality: req.body.speciality,
+      });
+      await user.save();
+
+      await doctor.save();
+    } else {
+      await user.save();
+    }
     sendverificationMail(user);
 
     //sendverificationMail(user);
@@ -84,7 +96,6 @@ const login = async (req, res) => {
         });
       }
       await user.save();
-
 
       return res.status(401).json({ message: "Invalid password" });
     }
@@ -189,7 +200,6 @@ const logout = async (req, res) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 };
-
 
 const client = mailgun.client({
   username: "api",
