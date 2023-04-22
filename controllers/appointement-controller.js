@@ -19,6 +19,9 @@ const createAppointment = async (req, res) => {
     res.status(500).json({ error: "Appointment creation failed!" });
   }
 };
+const appointment_create_post = async (req, res) => {
+  const User = req.params.id;
+  const { Firstname, Lastname, Phone, StartDate, EndDate } = req.body;
 
 // READ
 const getAppointments = async (req, res) => {
