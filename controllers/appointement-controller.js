@@ -1,78 +1,91 @@
-const Appointement = require("../model/Appointement");
+const Appointment = require("../model/Appointment");
 
-
-const get_appointment = async (req, res) => {
-  const IdUser = req.params.id;
+// CREATE
+const createAppointment = async (req, res) => {
   try {
-    const appointments = await Appointement.find({ User: IdUser });
-    res.status(200).send({ msg: "appointments", appointments });
+    const { patient, doctor, date, time, reason } = req.body;
+    const appointment = new Appointment({
+      patient,
+      doctor,
+      date,
+      time,
+      reason,
+    });
+    await appointment.save();
+    res
+      .status(201)
+      .json({ message: "Appointment created successfully!", appointment });
   } catch (error) {
-    console.log(error);
-    res.status(500).send(error);
+    res.status(500).json({ error: "Appointment creation failed!" });
   }
 };
-const appointment_create_post = async (req, res) => {
-  const User = req.params.id;
-  const { Firstname, Lastname, Email, Phone, StartDate, EndDate } = req.body;
 
+// READ
+const getAppointments = async (req, res) => {
   try {
-    const appointment = await Appointement.create({
-      Firstname,
-      Lastname,
-      Email,
-      Phone,
-      StartDate,
-      EndDate,
-      User,
-    });
-    res.status(201).json({ appointment: appointment });
-  } catch (err) {
-    const errors = handleErrors(err);
-    res.status(400).json({ errors });
+    const appointments = await Appointment.find().populate("patient doctor");
+    res.status(200).json({ appointments });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch appointments!" });
   }
 };
-const appointment_delete = (req, res) => {
-  const id = req.params.id;
 
-  Appointement.findByIdAndDelete(id)
-    .then((result) => {
-      res.json();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-};
-const UpdateAppointement = async (req, res) => {
+const getAppointmentById = async (req, res) => {
   try {
-    const A = await Appointement.updateOne(
-      { _id: req.params.id },
-      { $set: { ...req.body } }
+    const { id } = req.params;
+    const appointment = await Appointment.findById(id).populate(
+      "patient doctor"
     );
-    console.log(A);
-    if (A.modifiedCount) {
-      return res.send({ msg: "updated" });
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found!" });
     }
-    res.send({ msg: "there is no modification" });
+    res.status(200).json({ appointment });
   } catch (error) {
-    res.send({ msg: "can not modify it" });
+    res.status(500).json({ error: "Failed to fetch appointment!" });
   }
 };
-const get_one_appointment = async (req, res) => {
-  const id = req.params.id;
+
+// UPDATE
+const updateAppointment = async (req, res) => {
   try {
-    const appointment = await Appointement.findById(id);
-    res.status(200).send({ msg: "appointment", appointment });
+    const { id } = req.params;
+    const { patient, doctor, date, time, reason } = req.body;
+    const appointment = await Appointment.findByIdAndUpdate(
+      id,
+      { patient, doctor, date, time, reason },
+      { new: true }
+    );
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found!" });
+    }
+    res
+      .status(200)
+      .json({ message: "Appointment updated successfully!", appointment });
   } catch (error) {
-    console.log(error);
-    res.status(500).send(error);
+    res.status(500).json({ error: "Failed to update appointment!" });
   }
 };
+
+// DELETE
+const deleteAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const appointment = await Appointment.findByIdAndDelete(id);
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found!" });
+    }
+    res.status(200).json({ message: "Appointment deleted successfully!" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete appointment!" });
+  }
+};
+
 
 
 module.exports = {
-  appointment_create_post,
-  appointment_delete,
-  get_appointment,
-  UpdateAppointement,
-  get_one_appointment,
+  createAppointment,
+  getAppointments,
+  getAppointmentById,
+  updateAppointment,
+  deleteAppointment,
 };

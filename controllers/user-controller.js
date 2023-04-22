@@ -8,6 +8,7 @@ const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
 
+
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 
@@ -84,6 +85,7 @@ const login = async (req, res) => {
       }
       await user.save();
 
+
       return res.status(401).json({ message: "Invalid password" });
     }
 
@@ -100,6 +102,7 @@ const login = async (req, res) => {
       role: user.role,
       message: "OK",
       expiresIn: process.env.JWT_EXPIRE_IN,
+      role: user.role,
     });
   } catch (error) {
     console.log(error);
@@ -186,6 +189,7 @@ const logout = async (req, res) => {
   }
 };
 
+
 const client = mailgun.client({
   username: "api",
   key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
@@ -198,6 +202,7 @@ const client = mailgun.client({
     console.error(error);
   }
 })();
+
 module.exports = {
   signup,
   login,
