@@ -52,6 +52,7 @@ const signup = async (req, res) => {
         name: req.body.name,
         password: hashedPassword,
         speciality: req.body.speciality,
+        aboutMe: req.body.aboutMe,
       });
       await user.save();
 
