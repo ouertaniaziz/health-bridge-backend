@@ -1,14 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
-const donationroute = require("./routes/Donor-routes");
-
+const blog = require('./routes/blog-routes')
 const cors = require("cors");
 const dotenv = require("dotenv");
 const prescriptionrouter= require('./routes/prescription-routes');
 const patientrouter = require('./routes/patient-routes');
 const appointementrouter = require('./routes/appointement-routes');
 const donor = require('./routes/donor-router');
+const doctor = require('./routes/doctor-routers')
 
 const bodyParser = require("body-parser");
 
@@ -21,8 +21,8 @@ app.use(cors({ origin: "http://localhost:3001" }));
 app.use(express.json());
 
 app.use("/api", router);
-app.use("/api", donationroute);
-
+app.use("/api", doctor);
+app.use("/api", blog);
 app.use("/api", prescriptionrouter);
 app.use("/api", patientrouter);
 app.use("/api", appointementrouter);

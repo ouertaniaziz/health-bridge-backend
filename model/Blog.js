@@ -1,48 +1,63 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const blogSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  imageUrl: {
-    type: String,
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    
-  },
-  createdAt: { 
-    type: Date,
-    default: Date.now,
-  },
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  }],
-  dislikes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  }],
-  comments: [{
-    text: String,
-    user: {
+const blogSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
+      required: true,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
+    image: {
+      data: Buffer,
+      contentType: String,
     },
-  }],
-});
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    dislikes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    comments: [
+      {
+        text: {
+          type: String,
+          required: true,
+        },
+        author: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        likes: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
+        dislikes: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-const Blog = mongoose.model('Blog', blogSchema);
-
-module.exports = Blog;
+const Blog = mongoose.model("Blog", blogSchema);
