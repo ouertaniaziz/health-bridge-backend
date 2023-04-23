@@ -1,10 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Donor = require('../model/Donor');
+const Donor = require("../model/Donor");
 const Material = require("../model/Material");
 const Medication = require("../model/Medication");
-
-
 
 const signup = async (req, res) => {
   try {
@@ -20,7 +18,7 @@ const signup = async (req, res) => {
       donationtype: req.body.donationtype,
       contact: req.body.contact,
       medications: req.body.medications,
-      materials: req.body.materials
+      materials: req.body.materials,
     });
 
     if (req.body.donationtype === "materials") {
@@ -80,7 +78,7 @@ const login = async (req, res) => {
       contact: donor.contact,
       donationtype: donor.donationtype,
       message: "OK",
-      expiresIn: process.env.JWT_EXPIRE_IN
+      expiresIn: process.env.JWT_EXPIRE_IN,
     });
   } catch (error) {
     console.log(error);
@@ -134,11 +132,10 @@ const getMedicationsByDonationType = async (req, res) => {
   }
 };
 
-
 module.exports = {
-    signup,
-    login,
-    logout,
-    getMaterialsByDonationType,
-    getMedicationsByDonationType
+  signup,
+  login,
+  logout,
+  getMaterialsByDonationType,
+  getMedicationsByDonationType,
 };
