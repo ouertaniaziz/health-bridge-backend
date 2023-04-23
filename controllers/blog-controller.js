@@ -1,7 +1,7 @@
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const Blog = require("../model/Blog");
-const authenticate = require("../middleware/authenticate");
+
 
 
 const createBlog = async (req, res) => {

@@ -81,10 +81,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  prescriptions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Prescription'
-  }],
+  // prescriptions: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Prescription'
+  // }],
   resetToken: String,
   expireToken: Date,
 });

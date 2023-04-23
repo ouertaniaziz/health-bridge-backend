@@ -5,34 +5,34 @@ const prescriptionController = require("../controllers/prescription-controller")
 
 
 router.post(
-  "/",
+  "/prescription/addPrescription",
   // authorize(["doctor"]),
   prescriptionController.createPrescription
 );
 
 router.get(
-  "/",
+  "/prescription",
   // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
   prescriptionController.getAllPrescriptions
 );
 
 
 router.get(
-  "/:id",
+  "/prescription/:id",
   // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
   prescriptionController.getPrescriptionById
 );
 
 
 router.put(
-  "/:id",
+  "/prescription/:id",
   // authorize(["doctor"]),
   prescriptionController.updatePrescription
 );
 
 
 router.delete(
-  "/:id",
+  "/prescription/:id",
   // authorize(["doctor"]),
   prescriptionController.deletePrescription
 );
