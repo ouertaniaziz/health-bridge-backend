@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
+const User = require("../model/User");
 
 const addPatient = async (req, res) => {
   const patientData = req.body;
@@ -42,5 +43,37 @@ const addPatient = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+const get_patient_by_username = async (req, res) => {
+  const username = req.body.username;
+  console.log(req.body.username);
 
-module.exports = addPatient;
+  try {
+    const user = await User.findOne({ username: username });
+    const patient = await Patient.findOne({ user: user._id });
+    // console.log(patient);
+    res.status(200).json({ user, patient });
+    //console.log(user);
+  } catch (error) {
+    res.status(400).json({ status: "failed", message: error.message });
+  }
+};
+const update_patient = async (req, res) => {
+  try {
+    const user = new User(req.body.user);
+    
+    const updated = await User.findOneAndUpdate(
+      { _id: req.body.user._id },
+      user,
+      {
+        new: true,
+      }
+    );
+    
+    console.log(updated);
+    res.status(200).send('done');
+  } catch (error) {
+    res.status(400).json({ status: "failed", message: error.message });
+  }
+};
+
+module.exports = { addPatient, get_patient_by_username, update_patient };

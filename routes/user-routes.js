@@ -1,4 +1,4 @@
-const  verifysignup = require("../middleware/verifysignup");
+const verifysignup = require("../middleware/verifysignup");
 const controller = require("../controllers/user-controller");
 const express = require("express");
 const router = express.Router();
@@ -17,6 +17,4 @@ router.post("/ResetPassword", controller.ResetPassword);
 router.put("/UpdatePassword/:email", controller.UpdatePassword);
 // logout router
 router.post("/logout", controller.logout);
-module.exports = router;  
-
-
+module.exports = router;
