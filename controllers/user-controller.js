@@ -11,6 +11,7 @@ const Doctor = require("../model/Doctor");
 
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
+const Patient = require("../model/Patient");
 const Pharmacist = require("../model/Pharmacist");
 
 const mailgun = new Mailgun(formData);
@@ -20,11 +21,11 @@ const signup = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+    console.log(req.body);
     const user = new User({
       username: req.body.username,
       firstname: req.body.name,
-      lastname: req.body.LasNname,
+      lastname: req.body.LastName,
       email: req.body.email,
       password: hashedPassword,
       address: req.body.address,
@@ -35,18 +36,21 @@ const signup = async (req, res) => {
       creationDate: new Date(),
       emailtoken: crypto.randomBytes(64).toString("hex"),
       dateOfBirth: req.body.dateOfBirth,
-      bloodGroup: req.body.bloodGroup,
-      medicalHistory: req.body.medicalHistory,
-      medications: req.body.medications,
-      insuranceInformation: req.body.insuranceInformation,
-      symptoms: req.body.symptoms,
-      testResults: req.body.testResults,
+      //bloodGroup: req.body.bloodGroup,
+      //medicalHistory: req.body.medicalHistory,
+      //medications: req.body.medications,
+      //insuranceInformation: req.body.insuranceInformation,
+      //symptoms: req.body.symptoms,
+      //testResults: req.body.testResults,
       gender: req.body.sex,
       IdCardDoctor: req.body.IdCardDoctor,
       DateOfGraduation: req.body.DateOfGraduation,
       DateofCreation: req.body.DateofCreation,
       isVerified: false,
       banned: false,
+      city: req.body.city,
+      postal_code: req.body.postal_code,
+      state: req.body.state,
     });
     console.log("here!");
     if (req.body.role === "doctor") {
@@ -60,28 +64,19 @@ const signup = async (req, res) => {
       await user.save();
 
       await doctor.save();
-    } 
-    else if (req.body.role === "pharmacist") {
-      console.log(req.body);
-      console.log(user);
+    } else if (req.body.role === "patient") {
+      console.log("patien triggered");
+      const us = await user.save();
 
-      const pharmacist = new Pharmacist({
-        user: user._id,
-        name: req.body.name,
-        password: hashedPassword,
-        pharmacie: req.body.pharmacie,
+      const patient = new Patient({
+        user: us._id,
+        bloodGroup: req.body.bloodGroup,
         insuranceInformation: req.body.insuranceInformation,
-        medications: req.body.medications,
-        StreetAddress : req.body.StreetAddress,
-        City : req.body.City,
       });
-
-      await pharmacist.save();
-    }
-    else 
-    {
+      await patient.save();} else {
       await user.save();
     }
+
     sendverificationMail(user);
 
     //sendverificationMail(user);
@@ -126,7 +121,8 @@ const login = async (req, res) => {
     // Reset failed login attempts on successful login
     user.failedLoginAttempts = 0;
     await user.save();
-
+    //for patientsonly
+    const patient = await Patient.findOne({ user: user._id });
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
@@ -138,6 +134,7 @@ const login = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRE_IN,
       role: user.role,
       id: user._id,
+      cinverified: patient.cinverified,
     });
   } catch (error) {
     console.log(error);
