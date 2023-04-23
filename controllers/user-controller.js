@@ -11,10 +11,13 @@ const Doctor = require("../model/Doctor");
 
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
+const Pharmacist = require("../model/Pharmacist");
 
 const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
+  console.log (req.body.role);
+
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -57,7 +60,26 @@ const signup = async (req, res) => {
       await user.save();
 
       await doctor.save();
-    } else {
+    } 
+    else if (req.body.role === "pharmacist") {
+      console.log(req.body);
+      console.log(user);
+
+      const pharmacist = new Pharmacist({
+        user: user._id,
+        name: req.body.name,
+        password: hashedPassword,
+        pharmacie: req.body.pharmacie,
+        insuranceInformation: req.body.insuranceInformation,
+        medications: req.body.medications,
+        StreetAddress : req.body.StreetAddress,
+        City : req.body.City,
+      });
+
+      await pharmacist.save();
+    }
+    else 
+    {
       await user.save();
     }
     sendverificationMail(user);
@@ -210,7 +232,7 @@ const client = mailgun.client({
   try {
     const validationRes = await client.validate.get("andy.houssem@gmail.com");
     console.log("validationRes", validationRes);
-  } catch (error) {
+  } catch (error) { 
     console.error(error);
   }
 })();
