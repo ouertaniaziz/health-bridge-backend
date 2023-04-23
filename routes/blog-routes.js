@@ -4,17 +4,10 @@ const controller = require("../controllers/blog-controller");
 const authenticateUser = require("../middleware/authenticateUser");
 const multer = require("multer");
 
-// Create a storage instance with desired options
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
+// Create storage engine for multer
+const storage = multer.memoryStorage();
 
-// Define multer upload settings
+// Create multer instance with storage engine
 const upload = multer({
   storage,
   limits: { fileSize: 1000000 }, // Limit file size to 1 MB
@@ -27,6 +20,7 @@ const upload = multer({
     }
   },
 });
+
 
 // Create a new blog
 router.post(

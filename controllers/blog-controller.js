@@ -1,24 +1,8 @@
-const multer = require("multer");
+
 const fs = require("fs");
 const mongoose = require("mongoose");
 const Blog = require("../model/Blog");
 
-// Create storage engine for multer
-const storage = multer.memoryStorage();
-
-// Create multer instance with storage engine
-const upload = multer({
-  storage,
-  limits: { fileSize: 1000000 }, // Limit file size to 1 MB
-  fileFilter: function (req, file, cb) {
-    // Only allow certain file types
-    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
-      cb(null, true);
-    } else {
-      cb(new Error("Invalid file type"));
-    }
-  },
-});
 
 const createBlog = async (req, res) => {
   const { title, content } = req.body;
