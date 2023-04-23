@@ -1,11 +1,13 @@
 const fs = require("fs");
-const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const Blog = require("../model/Blog");
+const authenticate = require("../middleware/authenticate");
+
 
 const createBlog = async (req, res) => {
   const { title, content } = req.body;
-  const author = req.user._id; 
-  const image = {
+  const author = req.user._id;
+  const image = req.file && req.buffer && {
     data: fs.readFileSync(req.file.path),
     contentType: req.file.mimetype,
   };
@@ -18,6 +20,7 @@ const createBlog = async (req, res) => {
     res.status(500).json({ error: "Failed to create a new blog!" });
   }
 };
+
 
 const getAllBlogs = async (req, res) => {
   try {
@@ -102,14 +105,12 @@ const likePost = async (req, res) => {
       return res.status(404).json({ error: "Blog not found!" });
     }
 
-   
     if (blog.likes.includes(userId)) {
       return res
         .status(400)
         .json({ error: "You have already liked this post!" });
     }
 
-    
     if (blog.dislikes.includes(userId)) {
       blog.dislikes.pull(userId);
     }
