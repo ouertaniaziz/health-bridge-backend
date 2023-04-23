@@ -1,16 +1,13 @@
-import Pharmacist from "../model/Pharmacist";
-import User from "../model/User";
-import Medication from "../model/Medication";
 
 const express = require("express");
 const router = express.Router();
-const controller = require("../controllers/pharmacist-contoller");
+const pharmacist = require("../controllers/pharmacist-controller");
 
-router.delete(
-  "/pharmacist/:pharmacistId/medication/:medicationId",
-  controller.removeMedicationFromPharmacist
-);
-router.post("/pharmacist/profile", controller.getPharmacist);
-router.post("/addpharmacist", pharmacist);
+
+router.get("/pharmacist/getpharmacist/:id", pharmacist.getpharmacist);
+router.put("/pharmacist/updatepharmacist/:id",pharmacist.updatepharmacist );
+router.post("/pharmacist/profile", pharmacist.getpharmacist); 
+// router.delete("/pharmacist/deletepharmacist/:id", pharmacist.deletepharmacist);
+// router.post("/pharmacist/addpharmacist", pharmacist.addpharmacist);
 
 module.exports = router;

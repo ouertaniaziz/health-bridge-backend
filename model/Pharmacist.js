@@ -8,7 +8,7 @@ const pharmacistSchema = new mongoose.Schema({
   },
   
   pharmacie: {
-    type: Date,
+    type: String,
   },
   insuranceInformation: {
     type: String,
@@ -23,6 +23,9 @@ const pharmacistSchema = new mongoose.Schema({
     City :{
     type: String,
     },
+ 
+
+
 });
 
 const Pharmacist = mongoose.model("Pharmacist", pharmacistSchema);
