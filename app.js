@@ -9,6 +9,7 @@ const prescriptionrouter= require('./routes/prescription-routes');
 const patientrouter = require('./routes/patient-routes');
 const appointementrouter = require('./routes/appointement-routes');
 const donor = require('./routes/donor-router');
+const blog = require('./routes/blog-routes');
 
 const bodyParser = require("body-parser");
 
@@ -26,6 +27,7 @@ app.use("/api", prescriptionrouter);
 app.use("/api", patientrouter);
 app.use("/api", appointementrouter);
 app.use("/api", donor);
+app.use("/api", blog);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
