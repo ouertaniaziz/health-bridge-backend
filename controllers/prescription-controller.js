@@ -1,19 +1,21 @@
 const express = require("express");
 const Prescription = require("../model/Prescription");
-
+const Patient = require("../model/Patient");
+const Doctor = require("../model/Doctor");
 const createPrescription = async (req, res) => {
+  const doctor = await Doctor.findById(req.body.doctor);
+  const patient = await Patient.findById(req.body.patient);
   try {
+    console.log(doctor);
     const prescription = new Prescription({
-      patient: req.body.patientId,
-      doctor: req.body.doctorId,
-      medicine: req.body.medicine,
-      dosage: req.body.dosage,
+      patient: patient,
+      doctor: doctor,
       instructions: req.body.instructions,
       traitement: req.body.traitement,
     });
-
+    console.log(prescription);
     const savedPrescription = await prescription.save();
-
+    console.log(savedPrescription);
     res.status(201).json(savedPrescription);
   } catch (error) {
     res.status(400).json({ message: error.message });

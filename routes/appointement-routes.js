@@ -13,6 +13,10 @@ router.post("/appointments/add", AppointmentController.createAppointment);
 
 // PUT update appointment
 router.put("/appointments/:id", AppointmentController.updateAppointment);
+router.get(
+  "/appointments/doctor/:doctorId",
+  AppointmentController.getAppointmentsByDoctorId
+);
 
 // DELETE appointment
 router.delete("/appointments/:id", AppointmentController.deleteAppointment);
