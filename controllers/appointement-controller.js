@@ -17,6 +17,7 @@ const createAppointment = async (req, res) => {
       time,
       reason,
     });
+    console.log(appointment);
     await appointment.save();
     res
       .status(201)
@@ -25,7 +26,18 @@ const createAppointment = async (req, res) => {
     res.status(500).json({ error: "Appointment creation failed!" });
   }
 };
-
+const getAppointmentsByDoctorId = async (req, res) => {
+  console.log("hey");
+  try {
+    console.log(req.params);
+    const doctorId = req.params.doctorId;
+    console.log(doctorId);
+    const appointments = await Appointment.find({ doctor: doctorId });
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ error: "Error getting appointments!" });
+  }
+};
 // READ
 const getAppointments = async (req, res) => {
   try {
@@ -92,4 +104,5 @@ module.exports = {
   getAppointmentById,
   updateAppointment,
   deleteAppointment,
+  getAppointmentsByDoctorId,
 };
