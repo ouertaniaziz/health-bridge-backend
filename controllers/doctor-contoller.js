@@ -30,6 +30,7 @@ const removePatientFromDoctor = async (req, res) => {
 
 const getDoctor = async (req, res) => {
   try {
+    console.log("hey i m here");
     console.log(req.body);
     const doctor = await Doctor.findOne({ user: req.body.userId }).populate(
       "user"
