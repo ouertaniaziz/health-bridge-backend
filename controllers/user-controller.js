@@ -17,7 +17,7 @@ const Pharmacist = require("../model/Pharmacist");
 const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
-  console.log (req.body.role);
+  console.log(req.body.role);
 
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -73,24 +73,21 @@ const signup = async (req, res) => {
         bloodGroup: req.body.bloodGroup,
         insuranceInformation: req.body.insuranceInformation,
       });
-      await patient.save();}
+      await patient.save();
+    } else if (req.body.role === "pharmacist") {
+      console.log("pharmacist triggered");
 
-      else if (req.body.role === "pharmacist") {
-        console.log("pharmacist triggered");
-        
-  
-        const pharmacist = new Pharmacist({
-          user: user._id,
-          name: req.body.name,
-          password: hashedPassword,
-          pharmacieName: req.body.pharmacieName,
-          insuranceInformation: req.body.insuranceInformation,
-        });
+      const pharmacist = new Pharmacist({
+        user: user._id,
+        name: req.body.name,
+        password: hashedPassword,
+        pharmacieName: req.body.pharmacieName,
+        insuranceInformation: req.body.insuranceInformation,
+      });
 
-        await user.save();
-        await pharmacist.save();
-
-      } else {
+      await user.save();
+      await pharmacist.save();
+    } else {
       await user.save();
     }
 
@@ -143,6 +140,20 @@ const login = async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
+    if (patient) {
+      res.status(200).json({
+        accessToken: token,
+        username: user.username,
+        role: user.role,
+        message: "OK",
+        expiresIn: process.env.JWT_EXPIRE_IN,
+        role: user.role,
+        id: user._id,
+        cinverified: patient.cinverified,
+      });
+      
+    }
+    else{
     res.status(200).json({
       accessToken: token,
       username: user.username,
@@ -151,8 +162,9 @@ const login = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRE_IN,
       role: user.role,
       id: user._id,
-     // cinverified: patient.cinverified,
+      // cinverified: patient.cinverified,
     });
+  }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
@@ -238,18 +250,18 @@ const logout = async (req, res) => {
   }
 };
 
-const client = mailgun.client({
-  username: "api",
-  key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
-});
-(async () => {
-  try {
-    const validationRes = await client.validate.get("andy.houssem@gmail.com");
-    console.log("validationRes", validationRes);
-  } catch (error) { 
-    console.error(error);
-  }
-})();
+// const client = mailgun.client({
+//   username: "api",
+//   key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
+// });
+// (async () => {
+//   try {
+//     const validationRes = await client.validate.get("andy.houssem@gmail.com");
+//     console.log("validationRes", validationRes);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// })();
 
 module.exports = {
   signup,

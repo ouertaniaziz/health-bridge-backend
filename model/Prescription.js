@@ -17,13 +17,9 @@ const prescriptionSchema = new mongoose.Schema({
     required: true,
   },
 
-  dosage: {
-    type: String,
-    required: true,
-  },
   instructions: {
     type: String,
-    required: true,
+    required: false,
   },
   traitement: [
     {

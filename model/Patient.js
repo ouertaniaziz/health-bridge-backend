@@ -20,11 +20,6 @@ const patientSchema = new mongoose.Schema({
   appointmentDate: {
     type: Date,
   },
-  medicalHistory: [
-    {
-      type: String,
-    },
-  ],
   medications: {
     type: String,
   },
@@ -41,12 +36,7 @@ const patientSchema = new mongoose.Schema({
   bloodGroup: {
     type: String,
   },
-  records: [
-    {
-      name: String,
-      file: String,
-    },
-  ],
+  
 });
 
 const Patient = mongoose.model("Patient", patientSchema);
