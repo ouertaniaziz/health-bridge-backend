@@ -9,9 +9,13 @@ const createMedication = async (req, res) => {
       dosageStrength: req.body.dosageStrength,
       validationPeriod: req.body.validationPeriod,
       expirationDate: req.body.expirationDate,
+      creationDate: req.body.creationDate,
       prescriptionRequired: req.body.prescriptionRequired,
       numPackets: req.body.numPackets,
       description: req.body.description,
+      quantity: req.body.quantity,
+      price: req.body.price,
+
     });
 
     const savedMedication = await medication.save();
@@ -64,7 +68,9 @@ const updateMedication = async (req, res) => {
     medication.prescriptionRequired = req.body.prescriptionRequired;
     medication.numPackets = req.body.numPackets;
     medication.description = req.body.description;
-
+    medication.quantity = req.body.quantity;
+    medication.price = req.body.price;
+    medication.creationDate = req.body.creationDate;
     const savedMedication = await medication.save();
 
     res.status(200).json(savedMedication);
