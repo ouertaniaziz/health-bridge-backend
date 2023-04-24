@@ -8,21 +8,18 @@ const Medication = require("../model/Medication");
 
 const signup = async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const donor = new Donor({
       name: req.body.name,
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       email: req.body.email,
-      password: hashedPassword,
       address: req.body.address,
       donationtype: req.body.donationtype,
       contact: req.body.contact,
       medications: req.body.medications,
       materials: req.body.materials
     });
-
     if (req.body.donationtype === "materials") {
       const material = new Material({
         donor: donor._id,
@@ -30,9 +27,11 @@ const signup = async (req, res) => {
         state: req.body.state,
         quantity: req.body.quantity,
       });
-
+console.log(material);
       await material.save();
       donor.materials.push(material);
+      console.log(donor);
+
     }
 
     if (req.body.donationtype === "medications") {
@@ -47,7 +46,6 @@ const signup = async (req, res) => {
       await medication.save();
       donor.medications.push(medication);
     }
-
     await donor.save();
 
     res.status(201).json({ message: "donor created successfully" });

@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
 const medicationSchema = new mongoose.Schema({
-  donor: {
+  // donor: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Donor",
+  // },
+  donation: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Donor",
+    ref: "Donation",
     required: true,
   },
   medicationname: {
@@ -11,7 +15,7 @@ const medicationSchema = new mongoose.Schema({
     required: true,
   },
   validationPeriod: {
-    type: Date,
+    type: String,
     required: true,
   },
   numPackets: {
@@ -19,8 +23,7 @@ const medicationSchema = new mongoose.Schema({
     required: true,
   },
   description: {
-    type: String,
-    required: true,
+    type: String
   },
 });
 

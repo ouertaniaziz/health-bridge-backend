@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
 const materialSchema = new mongoose.Schema({
-  donor: {
+  // donor: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Donor",
+  // },
+  donation: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Donor",
+    ref: "Donation",
     required: true,
   },
   materialname: {
@@ -15,7 +19,7 @@ const materialSchema = new mongoose.Schema({
     required: true,
   },
   quantity: {
-    type: Number,
+    type: String,
     required: true,
   },
 });

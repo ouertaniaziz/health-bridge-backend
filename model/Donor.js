@@ -5,14 +5,14 @@ const donorSchema = new mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: false },
   donationtype: {
     type: String,
     enum: ["materials", "medications"],
     required: true,
   },
-  address: { type: String, required: true },
-  contact: { type: Number, required: true, unique: true },
+  address: { type: String, required: true }, 
+  contact: { type: Number, required: false, unique: true },
   materials: [{ type: mongoose.Schema.Types.ObjectId, ref: "Material" }],
   medications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Medication" }],
   materialname: {

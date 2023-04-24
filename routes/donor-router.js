@@ -6,7 +6,7 @@ const { verifyToken } = require("../middleware/authjwt");
 
 router.post(
   "/donor/signup",
-  [verifysignup.checkDuplicateUsernameOrEmail],
+ 
   donorcontroller.signup
 );
 

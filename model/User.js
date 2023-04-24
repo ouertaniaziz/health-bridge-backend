@@ -17,15 +17,14 @@ const Speciality = Object.freeze({
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
-    unique: true,
+    unique: true
   },
   firstname: String,
   lastname: String,
   email: {
     type: String,
-    required: true,
-    unique: true,
+    // required: true,
+    //unique: true,
   },
   password: String,
   gender: {
@@ -81,10 +80,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  prescriptions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Prescription'
-  }],
+  // prescriptions: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Prescription'
+  // }],
   resetToken: String,
   expireToken: Date,
 });
