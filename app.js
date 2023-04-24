@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
 const doctorRouter = require("./routes/doctor-routes");
-
+const polyclinic = require('./routes/polyclinic-router');
 const cors = require("cors");
 const dotenv = require("dotenv");
 const prescriptionrouter= require('./routes/prescription-routes');
@@ -28,6 +28,7 @@ app.use("/api", patientrouter);
 app.use("/api", appointementrouter);
 app.use("/api", donor);
 app.use("/api", blog);
+app.use("/api", polyclinic);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
