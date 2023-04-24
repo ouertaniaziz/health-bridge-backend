@@ -2,6 +2,8 @@ const Appointment = require("../model/Appointment");
 const express = require("express");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
+const User = require("../model/User");
+
 // CREATE
 const createAppointment = async (req, res) => {
   try {
@@ -31,8 +33,11 @@ const getAppointmentsByDoctorId = async (req, res) => {
   try {
     console.log(req.params);
     const doctorId = req.params.doctorId;
-    console.log(doctorId);
-    const appointments = await Appointment.find({ doctor: doctorId });
+    const user = await User.findById(doctorId);
+
+    const doctor = await Doctor.findOne({ user: user._id });
+    console.log(doctor, "hout tbib");
+    const appointments = await Appointment.find({ doctor: doctor });
     res.status(200).json(appointments);
   } catch (error) {
     res.status(500).json({ error: "Error getting appointments!" });
