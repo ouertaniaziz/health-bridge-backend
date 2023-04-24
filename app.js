@@ -5,15 +5,18 @@ const blog = require("./routes/blog-routes");
 const traitement = require("./routes/traitement-routes");
 
 const cors = require("cors");
-
+const pharmacist = require("./routes/pharmacist-routes");
 const dotenv = require("dotenv");
 const prescriptionrouter = require("./routes/prescription-routes");
 const patientrouter = require("./routes/patient-routes");
+
 const appointementrouter = require("./routes/appointement-routes");
 const donor = require("./routes/donor-router");
 const doctor = require("./routes/doctor-routers");
 
+
 const bodyParser = require("body-parser");
+
 
 dotenv.config();
 
@@ -41,6 +44,7 @@ app.use(express.json());
 
 app.use("/api", router);
 app.use("/api", doctor);
+app.use("/api", pharmacist);
 app.use("/api", blog);
 app.use("/api", prescriptionrouter);
 app.use("/api", patientrouter);
