@@ -232,18 +232,18 @@ const logout = async (req, res) => {
   }
 };
 
-const client = mailgun.client({
-  username: "api",
-  key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
-});
-(async () => {
-  try {
-    const validationRes = await client.validate.get("andy.houssem@gmail.com");
-    console.log("validationRes", validationRes);
-  } catch (error) {
-    console.error(error);
-  }
-})();
+// const client = mailgun.client({
+//   username: "api",
+//   key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
+// });
+// (async () => {
+//   try {
+//     const validationRes = await client.validate.get("andy.houssem@gmail.com");
+//     console.log("validationRes", validationRes);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// })();
 
 module.exports = {
   signup,
