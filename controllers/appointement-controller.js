@@ -1,10 +1,15 @@
 const Appointment = require("../model/Appointment");
 const express = require("express");
-
+const Patient = require("../model/Patient");
+const Doctor = require("../model/Doctor");
 // CREATE
 const createAppointment = async (req, res) => {
   try {
-    const { patient, doctor, date, time, reason } = req.body;
+    const doctor = await Doctor.findById(req.body.doctorId);
+    const patient = await Patient.findOne({ user: req.body.patientId });
+    console.log(req.body);
+    console.log(patient);
+    const { date, time, reason } = req.body;
     const appointment = new Appointment({
       patient,
       doctor,
@@ -80,8 +85,6 @@ const deleteAppointment = async (req, res) => {
     res.status(500).json({ error: "Failed to delete appointment!" });
   }
 };
-
-
 
 module.exports = {
   createAppointment,
