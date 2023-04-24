@@ -7,6 +7,7 @@ const sendEmail = require("../utils/createMail");
 const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
+const AdminPolyclinc = require('../model/AdminPolyclinic');
 
 
 const formData = require("form-data");
@@ -15,46 +16,96 @@ const Mailgun = require("mailgun.js");
 const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+   try {
+     const hashedPassword = await bcrypt.hash(req.body.password, 10);
+     console.log(req.body);
+     const user = new User({
+       username: req.body.username,
+       firstname: req.body.name,
+       lastname: req.body.LastName,
+       email: req.body.email,
+       password: hashedPassword,
+       address: req.body.address,
+       role: req.body.role,
+       phone: req.body.phone,
+       image: req.body.image,
+       speciality: req.body.speciality,
+       creationDate: new Date(),
+       emailtoken: crypto.randomBytes(64).toString("hex"),
+       dateOfBirth: req.body.dateOfBirth,
+       //bloodGroup: req.body.bloodGroup,
+       //medicalHistory: req.body.medicalHistory,
+       //medications: req.body.medications,
+       //insuranceInformation: req.body.insuranceInformation,
+       //symptoms: req.body.symptoms,
+       //testResults: req.body.testResults,
+       gender: req.body.sex,
+       IdCardDoctor: req.body.IdCardDoctor,
+       DateOfGraduation: req.body.DateOfGraduation,
+       DateofCreation: req.body.DateofCreation,
+       isVerified: false,
+       banned: false,
+       city: req.body.city,
+       postal_code: req.body.postal_code,
+       state: req.body.state,
+     });
+     console.log("here!");
+     if (req.body.role === "doctor") {
+       const doctor = new Doctor({
+         user: user._id,
+         name: req.body.name,
+         password: hashedPassword,
+         speciality: req.body.speciality,
+         aboutMe: req.body.aboutMe,
+       });
+       await user.save();
 
-    const user = new User({
-      username: req.body.username,
-      firstname: req.body.name,
-      lastname: req.body.LasNname,
-      email: req.body.email,
-      password: hashedPassword,
-      address: req.body.address,
-      role: req.body.role,
-      phone: req.body.phone,
-      image: req.body.image,
-      speciality: req.body.speciality,
-      creationDate: new Date(),
-      emailtoken: crypto.randomBytes(64).toString("hex"),
-      dateOfBirth: req.body.dateOfBirth,
-      bloodGroup: req.body.bloodGroup,
-      medicalHistory: req.body.medicalHistory,
-      medications: req.body.medications,
-      insuranceInformation: req.body.insuranceInformation,
-      symptoms: req.body.symptoms,
-      testResults: req.body.testResults,
-      gender: req.body.sex,
-      IdCardDoctor: req.body.IdCardDoctor,
-      DateOfGraduation: req.body.DateOfGraduation,
-      DateofCreation: req.body.DateofCreation,
-      isVerified: false,
-      banned: false,
-    });
-    console.log("here!");
-    await user.save();
-    sendverificationMail(user);
+       await doctor.save();
+     } else if (req.body.role === "patient") {
+       console.log("patien triggered");
+       const us = await user.save();
 
-    //sendverificationMail(user);
+       const patient = new Patient({
+         user: us._id,
+         bloodGroup: req.body.bloodGroup,
+         insuranceInformation: req.body.insuranceInformation,
+       });
+       await patient.save();
+     } else if (req.body.role === "pharmacist") {
+       console.log("pharmacist triggered");
 
-    res.status(201).json({ message: "User created successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+       const pharmacist = new Pharmacist({
+         user: user._id,
+         name: req.body.name,
+         password: hashedPassword,
+         pharmacieName: req.body.pharmacieName,
+         insuranceInformation: req.body.insuranceInformation,
+       });
+
+       await user.save();
+       await pharmacist.save();
+     } else if (req.body.role === "adminpolyclinic") {
+       console.log("adminpolyclinic triggered");
+
+       const adminpolyclinic = new AdminPolyclinc({
+         user: user._id,
+         polyname: req.body.polyname,
+         password: hashedPassword,
+         location: req.body.location,
+         medicalRecords: req.body.medicalRecords,
+         prescription: req.body.prescription
+       });
+
+       await user.save();
+       await adminpolyclinic.save();
+     }
+
+     sendverificationMail(user);
+
+     res.status(201).json({ message: "User created successfully" });
+   } catch (error) {
+     res.status(500).json({ message: error.message });
+   }
 };
 
 const login = async (req, res) => {
