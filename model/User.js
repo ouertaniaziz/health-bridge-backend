@@ -47,11 +47,11 @@ const userSchema = new mongoose.Schema({
     enum: Object.values(Role),
   },
   roles: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Role"
-      }
-    ],
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+    },
+  ],
 
   speciality: {
     type: String,
@@ -80,14 +80,18 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  // prescriptions: [{
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Prescription'
-  // }],
+  prescriptions: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Prescription",
+    },
+  ],
   resetToken: String,
   expireToken: Date,
+  city: String,
+  postal_code: Number,
+  state: String,
 });
-
 
 const User = mongoose.model("User", userSchema);
 

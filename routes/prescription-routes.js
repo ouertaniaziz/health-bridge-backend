@@ -5,14 +5,14 @@ const prescriptionController = require("../controllers/prescription-controller")
 
 // create prescription endpoint with authorization for doctor role
 router.post(
-  "/",
+  "/prescription",
   // authorize(["doctor"]),
   prescriptionController.createPrescription
 );
 
 // get all prescriptions endpoint with authorization for multiple roles
 router.get(
-  "/",
+  "/prescription",
   // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
   prescriptionController.getAllPrescriptions
 );
@@ -26,14 +26,14 @@ router.get(
 
 // update prescription endpoint with authorization for doctor role
 router.put(
-  "/:id",
+  "/prescription/:id",
   // authorize(["doctor"]),
   prescriptionController.updatePrescription
 );
 
 // delete prescription endpoint with authorization for doctor role
 router.delete(
-  "/:id",
+  "/prescription/:id",
   // authorize(["doctor"]),
   prescriptionController.deletePrescription
 );

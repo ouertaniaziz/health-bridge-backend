@@ -9,13 +9,16 @@ const patientSchema = new mongoose.Schema({
   doctor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Doctor",
-    required: true,
+  },
+  cin: {
+    type: String,
+  },
+  cinverified: {
+    type: Boolean,
+    default: false,
   },
   appointmentDate: {
     type: Date,
-  },
-  medicalHistory: {
-    type: String,
   },
   medications: {
     type: String,
@@ -27,6 +30,14 @@ const patientSchema = new mongoose.Schema({
   testResults: {
     type: String,
   },
+  insuranceInformation: {
+    type: String,
+  },
+  bloodGroup: {
+    type: String,
+  },
+  
 });
 
-module.exports = mongoose.model("Patient", patientSchema);
+const Patient = mongoose.model("Patient", patientSchema);
+module.exports = Patient;

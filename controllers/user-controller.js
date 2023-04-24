@@ -11,17 +11,21 @@ const Doctor = require("../model/Doctor");
 
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
+const Patient = require("../model/Patient");
+const Pharmacist = require("../model/Pharmacist");
 
 const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
+  console.log(req.body.role);
+
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+    console.log(req.body);
     const user = new User({
       username: req.body.username,
       firstname: req.body.name,
-      lastname: req.body.LasNname,
+      lastname: req.body.LastName,
       email: req.body.email,
       password: hashedPassword,
       address: req.body.address,
@@ -32,18 +36,21 @@ const signup = async (req, res) => {
       creationDate: new Date(),
       emailtoken: crypto.randomBytes(64).toString("hex"),
       dateOfBirth: req.body.dateOfBirth,
-      bloodGroup: req.body.bloodGroup,
-      medicalHistory: req.body.medicalHistory,
-      medications: req.body.medications,
-      insuranceInformation: req.body.insuranceInformation,
-      symptoms: req.body.symptoms,
-      testResults: req.body.testResults,
+      //bloodGroup: req.body.bloodGroup,
+      //medicalHistory: req.body.medicalHistory,
+      //medications: req.body.medications,
+      //insuranceInformation: req.body.insuranceInformation,
+      //symptoms: req.body.symptoms,
+      //testResults: req.body.testResults,
       gender: req.body.sex,
       IdCardDoctor: req.body.IdCardDoctor,
       DateOfGraduation: req.body.DateOfGraduation,
       DateofCreation: req.body.DateofCreation,
       isVerified: false,
       banned: false,
+      city: req.body.city,
+      postal_code: req.body.postal_code,
+      state: req.body.state,
     });
     console.log("here!");
     if (req.body.role === "doctor") {
@@ -57,9 +64,33 @@ const signup = async (req, res) => {
       await user.save();
 
       await doctor.save();
+    } else if (req.body.role === "patient") {
+      console.log("patien triggered");
+      const us = await user.save();
+
+      const patient = new Patient({
+        user: us._id,
+        bloodGroup: req.body.bloodGroup,
+        insuranceInformation: req.body.insuranceInformation,
+      });
+      await patient.save();
+    } else if (req.body.role === "pharmacist") {
+      console.log("pharmacist triggered");
+
+      const pharmacist = new Pharmacist({
+        user: user._id,
+        name: req.body.name,
+        password: hashedPassword,
+        pharmacieName: req.body.pharmacieName,
+        insuranceInformation: req.body.insuranceInformation,
+      });
+
+      await user.save();
+      await pharmacist.save();
     } else {
       await user.save();
     }
+
     sendverificationMail(user);
 
     //sendverificationMail(user);
@@ -104,10 +135,25 @@ const login = async (req, res) => {
     // Reset failed login attempts on successful login
     user.failedLoginAttempts = 0;
     await user.save();
-
+    //for patientsonly
+    const patient = await Patient.findOne({ user: user._id });
     const token = jwt.sign({ id: user.id }, process.env.SECRET, {
       expiresIn: process.env.JWT_EXPIRE_IN,
     });
+    if (patient) {
+      res.status(200).json({
+        accessToken: token,
+        username: user.username,
+        role: user.role,
+        message: "OK",
+        expiresIn: process.env.JWT_EXPIRE_IN,
+        role: user.role,
+        id: user._id,
+        cinverified: patient.cinverified,
+      });
+      
+    }
+    else{
     res.status(200).json({
       accessToken: token,
       username: user.username,
@@ -116,7 +162,9 @@ const login = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRE_IN,
       role: user.role,
       id: user._id,
+      // cinverified: patient.cinverified,
     });
+  }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
@@ -202,18 +250,18 @@ const logout = async (req, res) => {
   }
 };
 
-const client = mailgun.client({
-  username: "api",
-  key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
-});
-(async () => {
-  try {
-    const validationRes = await client.validate.get("andy.houssem@gmail.com");
-    console.log("validationRes", validationRes);
-  } catch (error) {
-    console.error(error);
-  }
-})();
+// const client = mailgun.client({
+//   username: "api",
+//   key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
+// });
+// (async () => {
+//   try {
+//     const validationRes = await client.validate.get("andy.houssem@gmail.com");
+//     console.log("validationRes", validationRes);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// })();
 
 module.exports = {
   signup,

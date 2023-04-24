@@ -1,18 +1,21 @@
 const express = require("express");
 const Prescription = require("../model/Prescription");
-
+const Patient = require("../model/Patient");
+const Doctor = require("../model/Doctor");
 const createPrescription = async (req, res) => {
+  const doctor = await Doctor.findById(req.body.doctor);
+  const patient = await Patient.findById(req.body.patient);
   try {
+    console.log(doctor);
     const prescription = new Prescription({
-      patient: req.body.patientId,
-      doctor: req.body.doctorId,
-      medicine: req.body.medicine,
-      dosage: req.body.dosage,
+      patient: patient,
+      doctor: doctor,
       instructions: req.body.instructions,
+      traitement: req.body.traitement,
     });
-
+    console.log(prescription);
     const savedPrescription = await prescription.save();
-
+    console.log(savedPrescription);
     res.status(201).json(savedPrescription);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -40,6 +43,13 @@ const getAllPrescriptions = async (req, res) => {
 //       .populate("doctor")
 //       .exec();
 
+// const getPrescriptionById = async (req, res) => {
+//   try {
+//     const prescription = await Prescription.findById(req.params.id)
+//       .populate("patient")
+//       .populate("doctor")
+//       .exec();
+
 //     if (!prescription) {
 //       return res.status(404).json({ message: "Prescription not found" });
 //     }
@@ -50,15 +60,6 @@ const getAllPrescriptions = async (req, res) => {
 //   }
 // };
 
-// const findPrescriptionById = async (id) => {
-//   try {
-//     const prescription = await Prescription.findById(id);
-//     return prescription;
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error('Error finding prescription');
-//   }
-// };
 
 const updatePrescription = async (req, res) => {
   try {
@@ -80,9 +81,6 @@ const updatePrescription = async (req, res) => {
   }
 };
 
-
-
-
 const deletePrescription = async (req, res) => {
   try {
     const prescription = await Prescription.findByIdAndDelete(req.params.id);
@@ -96,7 +94,6 @@ const deletePrescription = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 module.exports = {
     createPrescription,

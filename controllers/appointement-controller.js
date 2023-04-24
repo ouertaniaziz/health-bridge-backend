@@ -1,10 +1,15 @@
 const Appointment = require("../model/Appointment");
 const express = require("express");
-
+const Patient = require("../model/Patient");
+const Doctor = require("../model/Doctor");
 // CREATE
 const createAppointment = async (req, res) => {
   try {
-    const { patient, doctor, date, time, reason } = req.body;
+    const doctor = await Doctor.findById(req.body.doctorId);
+    const patient = await Patient.findOne({ user: req.body.patientId });
+    console.log(req.body);
+    console.log(patient);
+    const { date, time, reason } = req.body;
     const appointment = new Appointment({
       patient,
       doctor,
@@ -12,6 +17,7 @@ const createAppointment = async (req, res) => {
       time,
       reason,
     });
+    console.log(appointment);
     await appointment.save();
     res
       .status(201)
@@ -20,7 +26,18 @@ const createAppointment = async (req, res) => {
     res.status(500).json({ error: "Appointment creation failed!" });
   }
 };
-
+const getAppointmentsByDoctorId = async (req, res) => {
+  console.log("hey");
+  try {
+    console.log(req.params);
+    const doctorId = req.params.doctorId;
+    console.log(doctorId);
+    const appointments = await Appointment.find({ doctor: doctorId });
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ error: "Error getting appointments!" });
+  }
+};
 // READ
 const getAppointments = async (req, res) => {
   try {
@@ -81,12 +98,11 @@ const deleteAppointment = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   createAppointment,
   getAppointments,
   getAppointmentById,
   updateAppointment,
   deleteAppointment,
+  getAppointmentsByDoctorId,
 };
