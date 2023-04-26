@@ -28,5 +28,7 @@ const patientSchema = new mongoose.Schema({
     type: String,
   },
 });
+const Patient = mongoose.model("Patient", patientSchema);
 
-module.exports = mongoose.model("Patient", patientSchema);
+module.exports = Patient;
+

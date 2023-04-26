@@ -7,105 +7,110 @@ const sendEmail = require("../utils/createMail");
 const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
-const AdminPolyclinc = require('../model/AdminPolyclinic');
-
-
+const AdminPolyclinc = require("../model/AdminPolyclinic");
+const fs = require("fs");
+const multer = require("multer");
+const Record = require("../model/Record");
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 
 const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
-   try {
-     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-     console.log(req.body);
-     const user = new User({
-       username: req.body.username,
-       firstname: req.body.name,
-       lastname: req.body.LastName,
-       email: req.body.email,
-       password: hashedPassword,
-       address: req.body.address,
-       role: req.body.role,
-       phone: req.body.phone,
-       image: req.body.image,
-       speciality: req.body.speciality,
-       creationDate: new Date(),
-       emailtoken: crypto.randomBytes(64).toString("hex"),
-       dateOfBirth: req.body.dateOfBirth,
-       //bloodGroup: req.body.bloodGroup,
-       //medicalHistory: req.body.medicalHistory,
-       //medications: req.body.medications,
-       //insuranceInformation: req.body.insuranceInformation,
-       //symptoms: req.body.symptoms,
-       //testResults: req.body.testResults,
-       gender: req.body.sex,
-       IdCardDoctor: req.body.IdCardDoctor,
-       DateOfGraduation: req.body.DateOfGraduation,
-       DateofCreation: req.body.DateofCreation,
-       isVerified: false,
-       banned: false,
-       city: req.body.city,
-       postal_code: req.body.postal_code,
-       state: req.body.state,
-     });
-     console.log("here!");
-     if (req.body.role === "doctor") {
-       const doctor = new Doctor({
-         user: user._id,
-         name: req.body.name,
-         password: hashedPassword,
-         speciality: req.body.speciality,
-         aboutMe: req.body.aboutMe,
-       });
-       await user.save();
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    console.log(req.body);
+    const user = new User({
+      username: req.body.username,
+      firstname: req.body.name,
+      lastname: req.body.LastName,
+      email: req.body.email,
+      password: hashedPassword,
+      address: req.body.address,
+      role: req.body.role,
+      phone: req.body.phone,
+      image: eq.file &&
+        req.buffer && {
+          data: fs.readFileSync(req.file.path),
+          contentType: req.file.mimetype,
+        },
+      speciality: req.body.speciality,
+      creationDate: new Date(),
+      emailtoken: crypto.randomBytes(64).toString("hex"),
+      dateOfBirth: req.body.dateOfBirth,
+      //bloodGroup: req.body.bloodGroup,
+      //medicalHistory: req.body.medicalHistory,
+      //medications: req.body.medications,
+      //insuranceInformation: req.body.insuranceInformation,
+      //symptoms: req.body.symptoms,
+      //testResults: req.body.testResults,
+      gender: req.body.sex,
+      IdCardDoctor: req.body.IdCardDoctor,
+      DateOfGraduation: req.body.DateOfGraduation,
+      DateofCreation: req.body.DateofCreation,
+      isVerified: false,
+      banned: false,
+      city: req.body.city,
+      postal_code: req.body.postal_code,
+      state: req.body.state,
+    });
+    console.log("here!");
+    if (req.body.role === "doctor") {
+      const doctor = new Doctor({
+        user: user._id,
+        name: req.body.name,
+        password: hashedPassword,
+        speciality: req.body.speciality,
+        aboutMe: req.body.aboutMe,
+      });
+      await user.save();
 
-       await doctor.save();
-     } else if (req.body.role === "patient") {
-       console.log("patien triggered");
-       const us = await user.save();
+      await doctor.save();
+    } else if (req.body.role === "patient") {
+      console.log("patien triggered");
+      const us = await user.save();
 
-       const patient = new Patient({
-         user: us._id,
-         bloodGroup: req.body.bloodGroup,
-         insuranceInformation: req.body.insuranceInformation,
-       });
-       await patient.save();
-     } else if (req.body.role === "pharmacist") {
-       console.log("pharmacist triggered");
+      const patient = new Patient({
+        user: us._id,
+        bloodGroup: req.body.bloodGroup,
+        insuranceInformation: req.body.insuranceInformation,
+      });
+      await patient.save();
+    } else if (req.body.role === "pharmacist") {
+      console.log("pharmacist triggered");
 
-       const pharmacist = new Pharmacist({
-         user: user._id,
-         name: req.body.name,
-         password: hashedPassword,
-         pharmacieName: req.body.pharmacieName,
-         insuranceInformation: req.body.insuranceInformation,
-       });
+      const pharmacist = new Pharmacist({
+        user: user._id,
+        name: req.body.name,
+        password: hashedPassword,
+        pharmacieName: req.body.pharmacieName,
+        insuranceInformation: req.body.insuranceInformation,
+      });
 
-       await user.save();
-       await pharmacist.save();
-     } else if (req.body.role === "adminpolyclinic") {
-       console.log("adminpolyclinic triggered");
+      await user.save();
+      await pharmacist.save();
+    } else if (req.body.role === "adminpolyclinic") {
+      console.log("adminpolyclinic triggered");
 
-       const adminpolyclinic = new AdminPolyclinc({
-         user: user._id,
-         polyname: req.body.polyname,
-         password: hashedPassword,
-         location: req.body.location,
-         medicalRecords: req.body.medicalRecords,
-         prescription: req.body.prescription
-       });
+      const adminpolyclinic = new AdminPolyclinc({
+        user: user._id,
+        polyname: req.body.polyname,
+        password: hashedPassword,
+        location: req.body.location,
+        medicalRecords: req.body.medicalRecords,
+        prescription: req.body.prescription,
+      });
 
-       await user.save();
-       await adminpolyclinic.save();
-     }
+      await user.save();
+      await adminpolyclinic.save();
+    }
 
-     sendverificationMail(user);
+    sendverificationMail(user);
 
-     res.status(201).json({ message: "User created successfully" });
-   } catch (error) {
-     res.status(500).json({ message: error.message });
-   }
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const login = async (req, res) => {
@@ -135,7 +140,6 @@ const login = async (req, res) => {
         });
       }
       await user.save();
-
 
       return res.status(401).json({ message: "Invalid password" });
     }
@@ -240,7 +244,6 @@ const logout = async (req, res) => {
   }
 };
 
-
 const client = mailgun.client({
   username: "api",
   key: "5c207d5bd8e7882951176d1558e4477a-b36d2969-c41d7190" || "",
@@ -253,6 +256,132 @@ const client = mailgun.client({
     console.error(error);
   }
 })();
+//signup new
+const signupwithimage = async (req, res) => {
+  try {
+    console.log(req.body);
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, "uploads/"); // replace with your upload directory
+      },
+      filename: function (req, file, cb) {
+        cb(null, file.originalname);
+         console.log(file.originalname);
+      },
+    });
+    const upload = multer({ storage });
+    upload.single("file")(req, res, async (err) => {
+      if (err instanceof multer.MulterError) {
+        // A Multer error occurred when uploading
+        return res.status(500).send(err.message);
+      } else if (err) {
+        // An unknown error occurred when uploading
+        console.log(err);
+        return res.status(500).send(err.message);
+      }
+      const imagePath = req.file.path;
+
+      // Read the image file as a binary buffer
+      const imageBuffer = fs.readFileSync(imagePath);
+
+      // Convert the binary buffer to a base64-encoded string
+      const base64Image = Buffer.from(imageBuffer).toString("base64");
+      const userimg = JSON.parse(req.body.user);
+      console.log(userimg);
+      console.log()
+      const hashedPassword = await bcrypt.hash(userimg.password, 10);
+     
+      const user = new User({
+        username: userimg.username,
+        firstname: userimg.name,
+        lastname: userimg.LastName,
+        email: userimg.email,
+        password: hashedPassword,
+        address: userimg.address,
+        role: userimg.role,
+        phone: userimg.phone,
+        image: base64Image,
+        speciality: userimg.speciality,
+        creationDate: new Date(),
+        emailtoken: crypto.randomBytes(64).toString("hex"),
+        // dateOfBirth: userimg.dateOfBirth,
+        //bloodGroup: req.body.bloodGroup,
+        //medicalHistory: req.body.medicalHistory,
+        //medications: req.body.medications,
+        //insuranceInformation: req.body.insuranceInformation,
+        //symptoms: req.body.symptoms,
+        //testResults: req.body.testResults,
+        // gender: userimg.sex,
+        // IdCardDoctor: userimg.IdCardDoctor,
+        // DateOfGraduation: userimg.DateOfGraduation,
+        // DateofCreation: userimg.DateofCreation,
+        // isVerified: false,
+        // banned: false,
+        // city: userimg.city,
+        // postal_code: userimg.postal_code,
+        // state: userimg.state,
+      });
+              await user.save();
+
+      console.log("here!");
+      if (userimg.role === "doctor") {
+        const doctor = new Doctor({
+          user: user._id,
+          name: req.body.name,
+          password: hashedPassword,
+          speciality: req.body.speciality,
+          aboutMe: req.body.aboutMe,
+        });
+        await user.save();
+
+        await doctor.save();
+      } else if (userimg.role === "patient") {
+        console.log("patien triggered");
+        const us = await user.save();
+
+        const patient = new Patient({
+          user: us._id,
+          bloodGroup: req.body.bloodGroup,
+          insuranceInformation: req.body.insuranceInformation,
+        });
+        await patient.save();
+      } else if (userimg.role === "pharmacist") {
+        console.log("pharmacist triggered");
+
+        const pharmacist = new Pharmacist({
+          user: user._id,
+          name: req.body.name,
+          password: hashedPassword,
+          pharmacieName: req.body.pharmacieName,
+          insuranceInformation: req.body.insuranceInformation,
+        });
+
+        await user.save();
+        await pharmacist.save();
+      } else if (userimg.role === "adminpolyclinic") {
+        console.log("adminpolyclinic triggered");
+
+        const adminpolyclinic = new AdminPolyclinc({
+          user: user._id,
+          polyname: req.body.polyname,
+          password: hashedPassword,
+          location: req.body.location,
+          medicalRecords: req.body.medicalRecords,
+          prescription: req.body.prescription,
+        });
+
+        await user.save();
+        await adminpolyclinic.save();
+      } 
+
+      // sendverificationMail(user);
+
+      res.status(201).json({ message: "User created successfully", userimg });
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   signup,
@@ -261,4 +390,5 @@ module.exports = {
   ResetPassword,
   UpdatePassword,
   logout,
+  signupwithimage,
 };
