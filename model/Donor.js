@@ -1,10 +1,5 @@
 const mongoose = require("mongoose");
 
-const donationTypeEnum = Object.freeze({
-  Materials: "materials",
-  Medications: "medications",
-  Money: "donationAmount",
-});
 
 const donorSchema = new mongoose.Schema({
   user: {
@@ -16,11 +11,11 @@ const donorSchema = new mongoose.Schema({
     type: Date,
   
   },
-  donationType: {
-    type: String,
-    enum: Object.values(donationTypeEnum),
-   
+  description: {
+    type: Date,
+  
   },
+  
   materials: [
     {
       type: mongoose.Schema.Types.ObjectId,
