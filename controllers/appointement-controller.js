@@ -9,8 +9,7 @@ const createAppointment = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.body.doctorId);
     const patient = await Patient.findOne({ user: req.body.patientId });
-    console.log(req.body);
-    console.log(patient);
+   
     const { date, time, reason } = req.body;
     const appointment = new Appointment({
       patient,
@@ -19,7 +18,6 @@ const createAppointment = async (req, res) => {
       time,
       reason,
     });
-    console.log(appointment);
     await appointment.save();
     res
       .status(201)
@@ -29,14 +27,11 @@ const createAppointment = async (req, res) => {
   }
 };
 const getAppointmentsByDoctorId = async (req, res) => {
-  console.log("hey");
   try {
-    console.log(req.params);
     const doctorId = req.params.doctorId;
     const user = await User.findById(doctorId);
 
     const doctor = await Doctor.findOne({ user: user._id });
-    console.log(doctor, "hout tbib");
     const appointments = await Appointment.find({ doctor: doctor });
     res.status(200).json(appointments);
   } catch (error) {
