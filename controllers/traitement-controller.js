@@ -15,7 +15,6 @@ const createMedication = async (req, res) => {
       description: req.body.description,
       quantity: req.body.quantity,
       price: req.body.price,
-
     });
 
     const savedMedication = await medication.save();
@@ -29,10 +28,8 @@ const createMedication = async (req, res) => {
 const getAllMedications = async (req, res) => {
   try {
     const medications = await Medication.find();
-    console.log(medications, "this a med");
     res.status(200).json(medications);
   } catch (error) {
-    console.log("errorLL");
     res.status(500).json({ message: error.message });
   }
 };
