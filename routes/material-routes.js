@@ -1,16 +1,11 @@
-const controller = require("../controllers/material-controller");
 const express = require("express");
 const router = express.Router();
-
-router.post(
-  "/materials/addMaterial",
-  controller.addMaterial
-);
-router.get("/materials", controller.getAllMaterials);
-router.get("/materials/:id", controller.getMaterialById);
-router.put("/materials/:id", controller.updateMaterial);
-router.delete("/materials/:id", controller.deleteMaterial);
-
-module.exports = router;  
+const controller=require('../controllers/material-controller')
 
 
+// create a material
+//  router.post('/donation/postmaterial',controller.createMaterial)
+//get material
+router.get('/donation/getmaterials',controller.getAllMaterials)
+// get material by name
+router.get('/donation/getmaterialbyname',controller.getByNameMaterial)

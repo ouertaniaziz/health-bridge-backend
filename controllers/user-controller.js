@@ -14,6 +14,8 @@ const Mailgun = require("mailgun.js");
 const Patient = require("../model/Patient");
 const Pharmacist = require("../model/Pharmacist");
 
+const Donor = require("../model/Donor");
+
 const mailgun = new Mailgun(formData);
 
 const signup = async (req, res) => {
@@ -87,6 +89,19 @@ const signup = async (req, res) => {
 
       await user.save();
       await pharmacist.save();
+      
+    }else if (req.body.role === "donor") {
+      console.log("donor triggered");
+      const donor= new Donor({
+        user: user._id,
+        donationDate: req.body.donationDate,
+        donationType: req.body.donationType,
+      });
+
+      
+      await user.save();
+      await donor.save();
+      
     } else {
       await user.save();
     }

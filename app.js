@@ -13,11 +13,6 @@ const patientrouter = require("./routes/patient-routes");
 const appointementrouter = require("./routes/appointement-routes");
 const donor = require("./routes/donor-router");
 const doctor = require("./routes/doctor-routers");
-;
-const material = require('./routes/material-routes');
-const medication = require("./routes/medication-routes.js");
-const donation = require('./routes/donations-router')
-
 const bodyParser = require("body-parser");
 
 
@@ -54,10 +49,6 @@ app.use("/api", patientrouter);
 app.use("/api", appointementrouter);
 app.use("/api", donor);
 app.use("/api", traitement);
-app.use("/api", material);
-app.use("/api", medication);
-app.use("/api", donation);
-
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());

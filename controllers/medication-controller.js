@@ -1,79 +1,47 @@
-const express = require('express');
-const Medication = require('../model/Medication');
+const express = require("express");
+const Medication = require("../model/Medication");
+const Donor = require("../model/Donor");
+const User = require("../model/User");
 
-const addMedication = async (req, res) => {
-    try {
-      const medication = new Medication({
-        donation: req.body.donation,
-        medicationname: req.body.medicationname,
-        validationPeriod: req.body.validationPeriod,
-        numPackets: req.body.numPackets,
-        description: req.body.description
-      });
-      const newMedication = await medication.save();
-      res.status(201).json(newMedication);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
-      }
-}; 
 
-const getAllMedications = async (req, res) => {
+
+// Create a new medication
+//  exports.createmedication = async (req, res) => {
+//    try {
+//      const { DonorId, donationDate, donationType } = req.body;
+//     const donor = new Donor({
+//       donor: DonorId,
+//        donationDate,
+//        donationType,
+//     });
+//      await donor.save();
+//      res.status(201).json({ message: 'Donor created successfully', donor });
+//    } catch (err) {
+//      console.error(err);
+//      res.status(500).json({ error: 'Server error' });
+//    }
+ };
+
+// Get all medications
+exports.getAllmedications = async (req, res) => {
   try {
-    const medications = await Medication.find();
-    res.json(medications);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    const donors = await Donor.find().populate('user');
+    res.json(donors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
-}
-
-const updateMedication = async (req, res) => {
-    try {
-        const medication = await Medication.findByIdAndUpdate(
-          req.params.id,
-          req.body,
-          { new: true }
-        );
-        if (!medication) {
-          return res.status(404).json({ message: 'Medication not found' });
-        }
-        res.json(medication);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-      }
 };
 
-const getMedicationById = async (req, res) => {
-    try {
-        const medication = await Medication.findById(req.params.id);
-        if (!medication) {
-          return res.status(404).json({ message: 'Medication not found' });
-        }
-        res.json(medication);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-      }
-}
 
-const deleteMedication = async (req, res) => {
+exports.getByNameMedication = async (req, res) => {
+    const name = req.params.name;
     try {
-        const medication = await Medication.findByIdAndDelete(req.params.id);
-        if (!medication) {
-          return res.status(404).json({ message: 'Medication not found' });
-        }
-        res.json(medication);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-      }
-}
-
-module.exports = {
-    addMedication,
-    getAllMedications,
-    getMedicationById,
-    updateMedication,
-    deleteMedication
-}
+      const medications = await medications.find({ name });
+      res.json(materials);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  

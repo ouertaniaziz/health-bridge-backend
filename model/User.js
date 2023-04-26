@@ -6,6 +6,7 @@ const Role = Object.freeze({
   Pharmacist: "pharmacist",
   AdminPolyclinc: "adminpolyclinic",
   Admin: "admin",
+  Donor:"donor",
 });
 
 const Speciality = Object.freeze({
