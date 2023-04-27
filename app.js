@@ -13,10 +13,9 @@ const patientrouter = require("./routes/patient-routes");
 const appointementrouter = require("./routes/appointement-routes");
 const donor = require("./routes/donor-router");
 const doctor = require("./routes/doctor-routers");
-
+const predection = require("./routes/predection-routes");
 
 const bodyParser = require("body-parser");
-
 
 dotenv.config();
 
@@ -51,6 +50,7 @@ app.use("/api", patientrouter);
 app.use("/api", appointementrouter);
 app.use("/api", donor);
 app.use("/api", traitement);
+app.use("/api", predection);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
