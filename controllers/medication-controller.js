@@ -20,10 +20,10 @@ const User = require("../model/User");
 //      console.error(err);
 //      res.status(500).json({ error: 'Server error' });
 //    }
- };
+//  };
 
 // Get all medications
-exports.getAllmedications = async (req, res) => {
+const getAllmedications = async (req, res) => {
   try {
     const donors = await Donor.find().populate('user');
     res.json(donors);
@@ -33,15 +33,21 @@ exports.getAllmedications = async (req, res) => {
   }
 };
 
+const getByNameMedication = async (req, res) => {
+  const name = req.params.name;
+  try {
+    const medications = await Medication.find({ name });
+    res.json(medications);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
-exports.getByNameMedication = async (req, res) => {
-    const name = req.params.name;
-    try {
-      const medications = await medications.find({ name });
-      res.json(materials);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+
+  module.exports={
+    getAllmedications,
+    getByNameMedication
+
+  }
   

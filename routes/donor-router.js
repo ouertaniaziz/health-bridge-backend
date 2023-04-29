@@ -11,5 +11,7 @@ router.post('/donation/addMedication', controller.addMedication);
 router.post('/donation/addMaterial', controller.addMaterial);
 
 router.get('/donation', controller.getAllDonors);
+router.get('/donation/totaldonors',controller.getTotalDonors);
+router.get('/donation/MostDonatedMaterial',controller.mostDonatedMaterial)
 
 module.exports = router;

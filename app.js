@@ -3,18 +3,20 @@ const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
 const blog = require("./routes/blog-routes");
 const traitement = require("./routes/traitement-routes");
-
-const cors = require("cors");
 const pharmacist = require("./routes/pharmacist-routes");
 const dotenv = require("dotenv");
 const prescriptionrouter = require("./routes/prescription-routes");
 const patientrouter = require("./routes/patient-routes");
-
-const appointementrouter = require("./routes/appointement-routes");
 const donor = require("./routes/donor-router");
 const doctor = require("./routes/doctor-routers");
+const material = require("./routes/material-routes");
+const medication=require("./routes/medication-routes")
+const appointementrouter = require("./routes/appointement-routes");
+
 const bodyParser = require("body-parser");
 
+
+const cors = require("cors");
 
 dotenv.config();
 
@@ -49,7 +51,8 @@ app.use("/api", patientrouter);
 app.use("/api", appointementrouter);
 app.use("/api", donor);
 app.use("/api", traitement);
-
+app.use("/api", material);
+app.use("/api", medication);
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 

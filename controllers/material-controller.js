@@ -22,23 +22,32 @@ const User = require("../model/User");
 //  };
 
 // Get all materials
-exports.getAllMaterials = async (req, res) => {
+const getAllMaterials = async (req, res) => {
+
   try {
-    const donors = await Donor.find().populate('user');
-    res.json(donors);
+    const materials = await Material.find();
+    res.json(materials);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
+                                                                 
 };
-exports.getByNameMaterial = async (req, res) => {
+
+const getByNameMaterial = async (req, res) => {
+
     const name = req.params.name;
     try {
-      const materials = await materials.find({ name });
+      const materials = await Material.find({ name });
       res.json(materials);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });
     }
+
   };
 
+ module.exports = {
+  getAllMaterials,
+  getByNameMaterial
+ }

@@ -95,7 +95,7 @@ const signup = async (req, res) => {
       const donor= new Donor({
         user: user._id,
         donationDate: req.body.donationDate,
-        donationType: req.body.donationType,
+        description:req.body.description,
       });
 
       

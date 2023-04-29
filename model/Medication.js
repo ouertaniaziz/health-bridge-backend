@@ -16,11 +16,11 @@ const medicationSchema = new mongoose.Schema({
       required: true,
     },
       packetsname: {
-        type: Number,
-        required: true,
+        type: String,
+        // required: true,
       },
       description: {
-        type: Number,
+        type: String,
         required: true,
       },
       

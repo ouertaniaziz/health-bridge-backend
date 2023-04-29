@@ -6,6 +6,8 @@ const controller=require('../controllers/material-controller')
 // create a material
 //  router.post('/donation/postmaterial',controller.createMaterial)
 //get material
-router.get('/donation/getmaterials',controller.getAllMaterials)
+router.get('/donation/getmaterials',controller.getAllMaterials);
 // get material by name
-router.get('/donation/getmaterialbyname',controller.getByNameMaterial)
+router.get('/donation/getmaterialbyname/:name',controller.getByNameMaterial);
+
+module.exports = router;

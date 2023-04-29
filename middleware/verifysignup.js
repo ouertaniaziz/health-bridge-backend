@@ -1,5 +1,5 @@
 const User = require("../model/User");
-const Donor = require("../model/Donor")
+const Donor = require("../model/Donor");
 
 
 const checkDuplicateUsernameOrEmail = (req, res, next) => {
