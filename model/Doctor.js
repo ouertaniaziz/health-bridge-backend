@@ -30,6 +30,10 @@ const doctorSchema = new mongoose.Schema({
       ref: "Patient",
     },
   ],
+  adminpolyclinic: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AdminPolyclinic",
+  },
 });
 
 const Doctor = mongoose.model("Doctor", doctorSchema);
