@@ -118,17 +118,16 @@ const deletePrescription = async (req, res) => {
 };
 const getPrescriptionsByPatientId = async (req, res) => {
   const patientId = req.params.id;
-  console.log("patient id ", patientId);
   try {
-    const patient = await Patient.findById(patientId);
+    const patient = await Patient.find({ user: patientId });
+
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
 
     const prescriptions = await Prescription.find({
-      patient: patientId,
+      patient: patient,
     }).populate("doctor", "name email");
-    console.log("prespvdfvdg", prescriptions);
     res.json(prescriptions);
   } catch (error) {
     res.status(500).json({ message: error.message });
