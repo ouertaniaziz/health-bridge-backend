@@ -8,16 +8,15 @@ const Traitement = require("../model/Traitement");
 const QRCode = require("qrcode-svg");
 
 const createPrescription = async (req, res) => {
-  const doctor = await Doctor.findById(req.body.doctor);
+  const doctor = await Doctor.findOne({ user: req.body.doctor });
   const patient = await Patient.findById(req.body.patient);
-
   const userPatient = await User.findById(patient.user);
-
+  console.log(doctor);
   try {
     const prescription = new Prescription({
       patient: patient,
       doctor: doctor,
-      instructions: req.body.instructions,
+      // instructions: req.body.instructions,
       traitement: req.body.traitement,
     });
 
@@ -44,8 +43,9 @@ const createPrescription = async (req, res) => {
 
     const svgString = qrcode.svg();
     prescription.qrCodeVerif = svgString;
+
     const savedPrescription = await prescription.save();
-    console.log(savedPrescription);
+
     res.status(201).json(savedPrescription);
   } catch (error) {
     res.status(400).json({ message: error.message });
