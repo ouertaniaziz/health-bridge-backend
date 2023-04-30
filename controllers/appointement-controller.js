@@ -9,7 +9,7 @@ const createAppointment = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.body.doctorId);
     const patient = await Patient.findOne({ user: req.body.patientId });
-   
+
     const { date, time, reason } = req.body;
     const appointment = new Appointment({
       patient,
@@ -30,14 +30,51 @@ const getAppointmentsByDoctorId = async (req, res) => {
   try {
     const doctorId = req.params.doctorId;
     const user = await User.findById(doctorId);
-
     const doctor = await Doctor.findOne({ user: user._id });
     const appointments = await Appointment.find({ doctor: doctor });
-    res.status(200).json(appointments);
+
+    const customizedAppointments = [];
+    for (const appointment of appointments) {
+      const patient = await Patient.findById(appointment.patient)
+        .populate("user")
+        .exec();
+      const time = appointment.time;
+      const [hours, minutes] = time.split(":");
+      const date = new Date();
+      date.setHours(hours);
+      date.setMinutes(minutes);
+      date.setMinutes(date.getMinutes() + 30);
+      const startTimeString = date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      date.setMinutes(date.getMinutes() + 30);
+      const endTimeString = date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const dateTimeString = `${startTimeString} - ${endTimeString}`;
+
+      const customizedAppointment = {
+        patientId: patient._id,
+        img: "/content/user-40-1.jpg",
+        id: appointment._id,
+        name: patient.user.username,
+        email: patient.user.email,
+        number: patient.user.phone,
+        date: appointment.date.toDateString(),
+        fromTo: dateTimeString,
+        injury: appointment.reason,
+      };
+      customizedAppointments.push(customizedAppointment);
+    }
+
+    res.status(200).json(customizedAppointments);
   } catch (error) {
     res.status(500).json({ error: "Error getting appointments!" });
   }
 };
+
 // READ
 const getAppointments = async (req, res) => {
   try {
