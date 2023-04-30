@@ -8,7 +8,7 @@ const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
 const Doctor = require("../model/Doctor");
-
+const AdminPolyclinic = require('../model/AdminPolyclinic');
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 const Patient = require("../model/Patient");
@@ -87,9 +87,20 @@ const signup = async (req, res) => {
 
       await user.save();
       await pharmacist.save();
-    } else {
-      await user.save();
-    }
+    }else if (req.body.role === "adminpolyclinic") {
+            console.log("adminpolyclinic triggered");
+
+            const adminpolyclinic = new AdminPolyclinic({
+              user: user._id,
+              location: req.body.location,
+              password: hashedPassword,
+            });
+
+            await user.save();
+            await adminpolyclinic.save();
+          } else {
+            await user.save();
+          }
 
     sendverificationMail(user);
 

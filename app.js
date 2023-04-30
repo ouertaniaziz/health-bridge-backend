@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const router = require("./routes/user-routes");
 const blog = require("./routes/blog-routes");
 const traitement = require("./routes/traitement-routes");
-
+const adminpolyclinic = require("./routes/adminpolyclinic-routes");
 const cors = require("cors");
 const pharmacist = require("./routes/pharmacist-routes");
 const dotenv = require("dotenv");
@@ -51,6 +51,7 @@ app.use("/api", appointementrouter);
 app.use("/api", donor);
 app.use("/api", traitement);
 app.use("/api", predection);
+app.use("/api", adminpolyclinic);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
