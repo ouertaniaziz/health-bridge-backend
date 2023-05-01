@@ -55,9 +55,9 @@ const get_patient_by_username = async (req, res) => {
   try {
     const user = await User.findOne({ username: username });
     const patient = await Patient.findOne({ user: user._id });
-    const records=await Record.find({patient:user._id})
-     console.log(patient);
-    res.status(200).json({ user, patient ,records});
+    const records = await Record.find({ patient: user._id });
+    console.log(patient);
+    res.status(200).json({ user, patient, records });
     console.log("user", user, "patient", patient);
     //console.log(user);
   } catch (error) {
@@ -66,25 +66,45 @@ const get_patient_by_username = async (req, res) => {
 };
 const update_patient = async (req, res) => {
   try {
-    const user = new User(req.body.user);
- 
-      const val= await email_real_time(req,res)
-      console.log(val.result)
-      if(val.result==="deliverable"){
+    console.log(req.body.user)
+
+    const val = await email_real_time(req, res);
+    console.log(val.result);
+    if (val.result === "deliverable") {
+      const {
+        firstname,
+        lastname,
+        phone,
+        email,
+        city,
+        postal_code,
+        gender,
+        state,
+      } = req.body.user;
+
       const updated = await User.findOneAndUpdate(
         { _id: req.body.user._id },
-        user,
+        {
+          $set: {
+            firstname,
+            lastname,
+            phone,
+            email,
+            city,
+            postal_code,
+            gender,
+            state,
+          },
+        },
+
         {
           new: true,
         }
-    
-      )
-      res.status(200).send()
-      }
-      else{
-        res.status(400).send()
-      }
-   
+      );
+      res.status(200).send();
+    } else {
+      res.status(400).send();
+    }
   } catch (error) {
     res.status(404).json({ status: "failed", message: error.message });
   }
@@ -98,9 +118,9 @@ const email_real_time = async (req, res) => {
   try {
     const validationRes = await client.validate.get(req.body.user.email);
     //console.log(req.body.email);
-    
+
     console.log("validationRes", validationRes);
-    return validationRes
+    return validationRes;
     res.send(validationRes);
   } catch (error) {
     console.error(error);
