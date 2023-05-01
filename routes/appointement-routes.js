@@ -17,6 +17,10 @@ router.get(
   "/appointments/doctor/:doctorId",
   AppointmentController.getAppointmentsByDoctorId
 );
+router.get(
+  "/appointments/available/:doctorId",
+  AppointmentController.getAvailableSlots
+);
 
 // DELETE appointment
 router.delete("/appointments/:id", AppointmentController.deleteAppointment);

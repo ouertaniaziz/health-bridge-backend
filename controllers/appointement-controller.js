@@ -3,6 +3,7 @@ const express = require("express");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
 const User = require("../model/User");
+const moment = require("moment");
 
 // CREATE
 const createAppointment = async (req, res) => {
@@ -18,6 +19,7 @@ const createAppointment = async (req, res) => {
       time,
       reason,
     });
+    console.log(appointment);
     await appointment.save();
     res
       .status(201)
@@ -29,8 +31,7 @@ const createAppointment = async (req, res) => {
 const getAppointmentsByDoctorId = async (req, res) => {
   try {
     const doctorId = req.params.doctorId;
-    const user = await User.findById(doctorId);
-    const doctor = await Doctor.findOne({ user: user._id });
+    const doctor = await Doctor.findById(doctorId);
     const appointments = await Appointment.find({ doctor: doctor });
 
     const customizedAppointments = [];
@@ -72,6 +73,59 @@ const getAppointmentsByDoctorId = async (req, res) => {
     res.status(200).json(customizedAppointments);
   } catch (error) {
     res.status(500).json({ error: "Error getting appointments!" });
+  }
+};
+const getAvailableSlots = async (req, res) => {
+  const doctorId = req.params.doctorId;
+
+  const startDate = moment().add(1, "day").startOf("day");
+  const endDate = moment().startOf("isoWeek").add(3, "week").add(1, "day");
+  try {
+    const existingAppointments = await Appointment.find({
+      doctor: doctorId,
+      date: { $gte: startDate, $lte: endDate },
+      status: "Scheduled",
+    }).select("date time");
+
+    const reservedTimes = existingAppointments.map((appointment) => ({
+      date: moment(appointment.date).format("YYYY-MM-DD"),
+      time: appointment.time,
+    }));
+
+    const availableSlots = [];
+    let currentDate = startDate.clone();
+    const availableTimes = [
+      "10h",
+      "10:30",
+      "11h",
+      "11:30",
+      "12h",
+      "14h",
+      "14:30",
+      "15h",
+      "15:30",
+      "16h",
+      "16:30",
+    ];
+    while (currentDate.isSameOrBefore(endDate)) {
+      availableTimes.forEach((time) => {
+        const reservedTime = reservedTimes.find(
+          (rt) =>
+            rt.date === currentDate.format("YYYY-MM-DD") && rt.time === time
+        ); // Modification 3
+        if (!reservedTime) {
+          availableSlots.push({
+            date: currentDate.format("YYYY-MM-DD"),
+            time,
+          });
+        }
+      });
+      currentDate.add(1, "day");
+    }
+
+    res.status(200).json(availableSlots);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to return" });
   }
 };
 
@@ -142,4 +196,5 @@ module.exports = {
   updateAppointment,
   deleteAppointment,
   getAppointmentsByDoctorId,
+  getAvailableSlots,
 };
