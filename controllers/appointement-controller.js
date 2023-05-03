@@ -8,8 +8,11 @@ const moment = require("moment");
 // CREATE
 const createAppointment = async (req, res) => {
   try {
+    console.log("hetha body", req.body.doctorId);
     const doctor = await Doctor.findById(req.body.doctorId);
     const patient = await Patient.findOne({ user: req.body.patientId });
+    const user = await User.findById(req.body.patientId);
+    console.log(doctor, "hethaa doctor");
 
     const { date, time, reason } = req.body;
     const appointment = new Appointment({
@@ -19,9 +22,12 @@ const createAppointment = async (req, res) => {
       time,
       reason,
     });
-    console.log(appointment);
     await appointment.save();
-    global.io.emit("notification", { idd: doctor._id });
+    global.io.emit("notification", {
+      id: doctor.user,
+      time: time,
+      patient: user.firstname,
+    });
 
     res
       .status(201)
@@ -31,6 +37,7 @@ const createAppointment = async (req, res) => {
   }
 };
 const getAppointmentsByDoctorId = async (req, res) => {
+  console.log("i m herre");
   try {
     const doctorId = req.params.doctorId;
     const doctor = await Doctor.find({ user: doctorId });
@@ -71,7 +78,7 @@ const getAppointmentsByDoctorId = async (req, res) => {
       };
       customizedAppointments.push(customizedAppointment);
     }
-
+    console.log(customizedAppointments);
     res.status(200).json(customizedAppointments);
   } catch (error) {
     res.status(500).json({ error: "Error getting appointments!" });
@@ -164,6 +171,25 @@ const updateAppointment = async (req, res) => {
     const appointment = await Appointment.findByIdAndUpdate(
       id,
       { patient, doctor, date, time, reason },
+      { new: true }
+    );
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found!" });
+    }
+    res
+      .status(200)
+      .json({ message: "Appointment updated successfully!", appointment });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update appointment!" });
+  }
+};
+// validate
+const validateAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const appointment = await Appointment.findByIdAndUpdate(
+      id,
+      { statud: "Completed" },
       { new: true }
     );
     if (!appointment) {
