@@ -21,6 +21,8 @@ const createAppointment = async (req, res) => {
     });
     console.log(appointment);
     await appointment.save();
+    global.io.emit("notification", { idd: doctor._id });
+
     res
       .status(201)
       .json({ message: "Appointment created successfully!", appointment });
@@ -31,7 +33,7 @@ const createAppointment = async (req, res) => {
 const getAppointmentsByDoctorId = async (req, res) => {
   try {
     const doctorId = req.params.doctorId;
-    const doctor = await Doctor.findById(doctorId);
+    const doctor = await Doctor.find({ user: doctorId });
     const appointments = await Appointment.find({ doctor: doctor });
 
     const customizedAppointments = [];
