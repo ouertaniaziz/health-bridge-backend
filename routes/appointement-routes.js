@@ -4,6 +4,10 @@ const AppointmentController = require("../controllers/appointement-controller");
 
 // GET all appointments
 router.get("/appointments", AppointmentController.getAppointments);
+router.get(
+  "/appointments/patient/:patientId",
+  AppointmentController.getAppointmentsByPatient
+);
 
 // GET appointment by ID
 router.get("/appointments/:id", AppointmentController.getAppointmentById);
