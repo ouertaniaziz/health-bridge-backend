@@ -137,6 +137,20 @@ const getAvailableSlots = async (req, res) => {
     res.status(500).json({ error: "Failed to return" });
   }
 };
+const getAppointmentsByPatient = async (req, res) => {
+  console.log("dkhlet");
+  const patient = await Patient.find({ user: req.params.patientId });
+  console.log(patient);
+  try {
+    const appointments = await Appointment.find({ patient: patient }).populate(
+      "patient doctor"
+    );
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch appointments!" });
+  }
+};
 
 // READ
 const getAppointments = async (req, res) => {
@@ -225,4 +239,5 @@ module.exports = {
   deleteAppointment,
   getAppointmentsByDoctorId,
   getAvailableSlots,
+  getAppointmentsByPatient,
 };
