@@ -7,6 +7,7 @@ const formData = require("form-data");
 
 const Mailgun = require("mailgun.js");
 const Record = require("../model/Record");
+const Appointment = require("../model/Appointment");
 const mailgun = new Mailgun(formData);
 
 const addPatient = async (req, res) => {
@@ -66,7 +67,7 @@ const get_patient_by_username = async (req, res) => {
 };
 const update_patient = async (req, res) => {
   try {
-    console.log(req.body.user)
+    console.log(req.body.user);
 
     const val = await email_real_time(req, res);
     console.log(val.result);
@@ -136,6 +137,7 @@ const getmedicalrecordsnames = async (req, res) => {
     console.log(patient);
   } catch (error) {}
 };
+
 module.exports = {
   addPatient,
   get_patient_by_username,

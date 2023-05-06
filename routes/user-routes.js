@@ -15,6 +15,7 @@ router.post("/verify-email", controller.verifyEmail, verifyToken);
 // router.post("/real_time", controller.email_real_time);
 router.post("/ResetPassword", controller.ResetPassword);
 router.put("/UpdatePassword/:email", controller.UpdatePassword);
+router.post("/facelogin", controller.login_face);
 // logout router
 router.post("/logout", controller.logout);
 module.exports = router;
