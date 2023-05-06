@@ -10,12 +10,18 @@ const pharmacistSchema = new mongoose.Schema({
   pharmacie: {
     type: String,
   },
+
   insuranceInformation: {
     type: String,
   },
-  medications: {
-    type: String,
-  },
+
+  Traitement: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Traitement",
+    required: true,
+  }],                               
+
+  
 
   StreetAddress :{
     type: String,

@@ -2,9 +2,12 @@ const express = require("express");
 const Prescription = require("../model/Prescription");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
+const Pharmacist = require ("../model/Pharmacist");
 const createPrescription = async (req, res) => {
   const doctor = await Doctor.findById(req.body.doctor);
   const patient = await Patient.findById(req.body.patient);
+  const pharmacist = await Pharmacist.findById(req.body.pharmacist)
+  
   try {
     console.log(doctor);
     const prescription = new Prescription({
@@ -27,6 +30,7 @@ const getAllPrescriptions = async (req, res) => {
     const prescriptions = await Prescription.find()
       .populate("patient")
       .populate("doctor")
+      .populate("pharmacist")
       .exec();
 
     res.status(200).json(prescriptions);
@@ -40,6 +44,7 @@ const getPrescriptionById = async (req, res) => {
     const prescription = await Prescription.findById(req.params.id)
       .populate("patient")
       .populate("doctor")
+      .populate("pharmacist")
       .exec();
 
     if (!prescription) {
