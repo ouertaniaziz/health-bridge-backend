@@ -28,5 +28,9 @@ router.get(
   "/polyclinics/:id/dashboard",
   polyclinicController.getPolyclinicDashboardStats
 );
+router.get(
+  "/polyclinics/prescriptions",
+  polyclinicController.getAllPrescriptionsPolyclinic
+);
 
 module.exports = router;

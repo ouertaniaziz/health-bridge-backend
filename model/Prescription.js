@@ -33,6 +33,16 @@ const prescriptionSchema = new mongoose.Schema({
       ref: "Traitement",
     },
   ],
+  Polyclinicstatus: {
+    type: String,
+    enum: ["Approved", "Declined", "Pending"],
+    default: "Pending",
+  },
+  Pharmaciststatus: {
+    type: String,
+    enum: ["Accepted", "Pending"],
+    default: "Pending",
+  },
 });
 
 const Prescription = mongoose.model("Prescription", prescriptionSchema);
