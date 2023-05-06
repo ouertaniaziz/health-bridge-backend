@@ -23,20 +23,20 @@ const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "http://localhost:3001" },
+global.io = new Server(server, {
+  cors: { origin: "*" },
 });
-io.on("connection", (socket) => {
-  console.log("user connected", socket.id);
-  socket.on("notification", (data) => {
-    console.log(data);
-    socket.broadcast.emit("recive", data);
-  });
+// io.on("connection", (socket) => {
+//   console.log("user connected", socket.id);
+//   socket.on("notification", (data) => {
+//     console.log(data);
+//     socket.broadcast.emit("recive", data);
+//   });
 
-  // Here, you can send the notification to the appropriate user(s).
-  // You can use the socket.emit() method to send a message to a specific socket,
-  // or the io.emit() method to broadcast a message to all connected sockets.
-});
+// Here, you can send the notification to the appropriate user(s).
+// You can use the socket.emit() method to send a message to a specific socket,
+// or the io.emit() method to broadcast a message to all connected sockets.
+//});
 app.use(cors({ origin: "http://localhost:3001" }));
 
 app.use(express.json());
