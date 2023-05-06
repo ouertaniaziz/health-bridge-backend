@@ -32,5 +32,13 @@ router.get(
   "/polyclinics/prescriptions",
   polyclinicController.getAllPrescriptionsPolyclinic
 );
+router.post(
+  "/polyclinics/approveprescription",
+  polyclinicController.approvePrescription
+);
+router.post(
+  "/polyclinics/declineprescription",
+  polyclinicController.declinePrescription
+);
 
 module.exports = router;
