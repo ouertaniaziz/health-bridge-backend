@@ -136,7 +136,9 @@ const getPolyclinicDashboardStats = async (req, res) => {
 };
 const getAllPrescriptionsPolyclinic = async (req, res) => {
   try {
-    const prescriptions = await Prescription.find()
+    const prescriptions = await Prescription.find({
+      Polyclinicstatus: "Pending",
+    })
       .populate({
         path: "patient",
         select: "_id cin",
@@ -182,6 +184,68 @@ const getAllPrescriptionsPolyclinic = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+const approvePrescription = async (req, res) => {
+  try {
+    const prescription = await Prescription.findById(req.body._id);
+    console.log(prescription);
+    if (
+      prescription.Polyclinicstatus === "Approved" ||
+      prescription.Polyclinicstatus == "Declined"
+    ) {
+      return res
+        .status(400)
+        .json({ status: "failed", message: "already approved" });
+    } else {
+      const updated = await Prescription.findOneAndUpdate(
+        { _id: req.body._id },
+        {
+          $set: {
+            Polyclinicstatus: "Approved",
+          },
+        },
+
+        {
+          new: true,
+        }
+      );
+
+      res.status(200).json(updated);
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+const declinePrescription = async (req, res) => {
+  try {
+    const prescription = await Prescription.findById(req.body._id);
+    console.log(prescription);
+    if (
+      prescription.Polyclinicstatus === "Declined" ||
+      prescription.Polyclinicstatus === "Approved"
+    ) {
+      return res
+        .status(400)
+        .json({ status: "failed", message: "already declined" });
+    } else {
+      const updated = await Prescription.findOneAndUpdate(
+        { _id: req.body._id },
+        {
+          $set: {
+            Polyclinicstatus: "Declined",
+          },
+        },
+
+        {
+          new: true,
+        }
+      );
+
+      res.status(200).json(updated);
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 module.exports = {
   removePatientFromPolyclinic,
   removeDoctorFromPolyclinic,
@@ -190,4 +254,6 @@ module.exports = {
   getPrescriptionsForPolyclinic,
   getPolyclinicDashboardStats,
   getAllPrescriptionsPolyclinic,
+  approvePrescription,
+  declinePrescription,
 };
