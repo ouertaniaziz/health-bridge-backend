@@ -23,9 +23,12 @@ const pharmacistSchema = new mongoose.Schema({
     City :{
     type: String,
     },
- 
-
-
+    medicamentsinstock: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Storagemed",
+      },
+    ],
 });
 
 const Pharmacist = mongoose.model("Pharmacist", pharmacistSchema);
