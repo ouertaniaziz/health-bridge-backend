@@ -25,8 +25,8 @@ const User = require("../model/User");
 // Get all medications
 const getAllmedications = async (req, res) => {
   try {
-    const donors = await Donor.find().populate('user');
-    res.json(donors);
+    const medications = await Medication.find();
+    res.json(medications);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -44,10 +44,27 @@ const getByNameMedication = async (req, res) => {
   }
 };
 
+const updateMedication = async (req, res) => {
+  try {
+    const updatedMedication = await Medication.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedMedication) {
+      return res.status(404).send({ message: 'Medication not found' });
+    }
+
+    res.send(updatedMedication);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   module.exports={
     getAllmedications,
-    getByNameMedication
-
+    getByNameMedication,
+    updateMedication
   }
   

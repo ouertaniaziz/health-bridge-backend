@@ -9,5 +9,6 @@ const controller =require('../controllers/medication-controller')
 router.get('/donation/getallmedications',controller.getAllmedications);
 // get medication by name
 router.get('/donation/getmedbyname/:name',controller.getByNameMedication);
+router.put('/donation/medication/:id', controller.updateMedication);
 
 module.exports = router;

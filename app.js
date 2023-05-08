@@ -12,7 +12,6 @@ const doctor = require("./routes/doctor-routers");
 const material = require("./routes/material-routes");
 const medication=require("./routes/medication-routes")
 const appointementrouter = require("./routes/appointement-routes");
-
 const bodyParser = require("body-parser");
 
 
@@ -56,6 +55,7 @@ app.use("/api", medication);
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 
+  
 mongoose.connect(
   process.env.MONGODB_URL,
   {

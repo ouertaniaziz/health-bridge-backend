@@ -47,7 +47,27 @@ const getByNameMaterial = async (req, res) => {
 
   };
 
+  const updateMaterial = async (req, res) => {
+    try {
+      const updatedMaterial = await Material.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+      );
+  
+      if (!updatedMaterial) {
+        return res.status(404).send({ message: 'Material not found' });
+      }
+  
+      res.send(updatedMaterial);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
  module.exports = {
   getAllMaterials,
-  getByNameMaterial
+  getByNameMaterial,
+  updateMaterial
  }

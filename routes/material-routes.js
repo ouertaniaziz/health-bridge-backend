@@ -9,5 +9,5 @@ const controller=require('../controllers/material-controller')
 router.get('/donation/getmaterials',controller.getAllMaterials);
 // get material by name
 router.get('/donation/getmaterialbyname/:name',controller.getByNameMaterial);
-
+router.put('/donation/material/:id', controller.updateMaterial);
 module.exports = router;
