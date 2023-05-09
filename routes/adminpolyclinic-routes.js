@@ -41,4 +41,24 @@ router.post(
   polyclinicController.declinePrescription
 );
 
+router.get(
+  "/polyclinics/patients/count",
+  polyclinicController.getTotalPatients
+);
+
+router.get(
+  "/polyclinics/doctors/count",
+  polyclinicController.getTotalDoctors
+);
+
+router.get(
+  "/polyclinics/prescriptions/declined/count",
+  polyclinicController.getTotalDeclinedPrescriptions
+);
+
+router.get(
+  "/polyclinics/prescriptions/approved/count",
+  polyclinicController.getTotalApprovedPrescriptions
+);
+
 module.exports = router;
