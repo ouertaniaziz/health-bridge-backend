@@ -62,9 +62,24 @@ const updateMedication = async (req, res) => {
   }
 };
 
+const deleteMedication = async (req, res) => {
+  try {
+    const medication = await Medication.findByIdAndDelete(req.params.id);
+
+    if (!medication) {
+      return res.status(404).json({ message: "medication not found" });
+    }
+
+    res.status(200).json({ message: "medication deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
   module.exports={
     getAllmedications,
     getByNameMedication,
-    updateMedication
+    updateMedication,
+    deleteMedication
   }
   

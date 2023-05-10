@@ -65,9 +65,23 @@ const getByNameMaterial = async (req, res) => {
     }
   };
 
+  const deleteMaterial = async (req, res) => {
+    try {
+      const material = await Material.findByIdAndDelete(req.params.id);
+  
+      if (!material) {
+        return res.status(404).json({ message: "Material not found" });
+      }
+  
+      res.status(200).json({ message: "Material deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
 
  module.exports = {
   getAllMaterials,
   getByNameMaterial,
-  updateMaterial
+  updateMaterial,
+  deleteMaterial
  }

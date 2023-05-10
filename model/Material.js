@@ -5,7 +5,6 @@ const materialSchema = new mongoose.Schema({
     donor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Donor",
-      required: true
     },
 
     materialname: {

@@ -42,41 +42,50 @@ const addMedication = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 }
-    
-   
-   
+
 const addMaterial = async (req, res) => {
-  
-  const donor = await Donor.findById(req.body.donor);
-
-try {
-
-  const newmaterial = new Material({
-    donor: donor,
-    materialname: req.body.materialname,
-    state: req.body.state,
-    quantity: req.body.quantity,
-   
-  });
-  await newmaterial.save();
-
-  donor.materials.push(newmaterial);
-  await donor.save();
-  
-    
-    // add the material to the donor's material list
-    donor.materials.push(newmaterial);
-    await donor.save();
-   
-    
-    return res.status(200).json({
-      success: true,
-      message: "Material added to donor successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+  try {
+    const newMaterial = new Material(req.body);
+    await newMaterial.save();
+    res.status(201).json(newMaterial);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-  };
+}
+   
+   
+// const addMaterial = async (req, res) => {
+  
+//   const donor = await Donor.findById(req.body.donor);
+
+// try {
+
+//   const newmaterial = new Material({
+//     donor: donor,
+//     materialname: req.body.materialname,
+//     state: req.body.state,
+//     quantity: req.body.quantity,
+   
+//   });
+//   await newmaterial.save();
+
+//   donor.materials.push(newmaterial);
+//   await donor.save();
+  
+    
+//     // add the material to the donor's material list
+//     donor.materials.push(newmaterial);
+//     await donor.save();
+   
+    
+//     return res.status(200).json({
+//       success: true,
+//       message: "Material added to donor successfully",
+//     });
+//   } catch (error) {
+//     return res.status(500).json({ success: false, message: error.message });
+//   }
+//   };
 
 
 const getAllDonors = async (req, res) => {
