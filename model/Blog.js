@@ -12,7 +12,7 @@ const blogSchema = new mongoose.Schema(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Doctor",
       required: true,
     },
     image: {
@@ -22,13 +22,21 @@ const blogSchema = new mongoose.Schema(
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Doctor",
+      },
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Patient",
       },
     ],
     dislikes: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Doctor",
+      },
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Patient",
       },
     ],
     comments: [
@@ -57,7 +65,6 @@ const blogSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
 );
 
 const Blog = mongoose.model("Blog", blogSchema);

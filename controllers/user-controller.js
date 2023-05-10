@@ -8,7 +8,7 @@ const DOMAIN = process.env.DOMAIN;
 const nodemailer = require("nodemailer");
 const { sendResetPassword } = require("../utils/createMail");
 const Doctor = require("../model/Doctor");
-
+const AdminPolyclinic = require("../model/AdminPolyclinic");
 const formData = require("form-data");
 const Mailgun = require("mailgun.js");
 const Patient = require("../model/Patient");
@@ -89,6 +89,17 @@ const signup = async (req, res) => {
 
       await user.save();
       await pharmacist.save();
+    } else if (req.body.role === "adminpolyclinic") {
+      console.log("adminpolyclinic triggered");
+
+      const adminpolyclinic = new AdminPolyclinic({
+        user: user._id,
+        location: req.body.location,
+        password: hashedPassword,
+      });
+
+      await user.save();
+      await adminpolyclinic.save();
       
     }else if (req.body.role === "donor") {
       console.log("donor triggered");
@@ -166,20 +177,18 @@ const login = async (req, res) => {
         id: user._id,
         cinverified: patient.cinverified,
       });
-      
+    } else {
+      res.status(200).json({
+        accessToken: token,
+        username: user.username,
+        role: user.role,
+        message: "OK",
+        expiresIn: process.env.JWT_EXPIRE_IN,
+        role: user.role,
+        id: user._id,
+        // cinverified: patient.cinverified,
+      });
     }
-    else{
-    res.status(200).json({
-      accessToken: token,
-      username: user.username,
-      role: user.role,
-      message: "OK",
-      expiresIn: process.env.JWT_EXPIRE_IN,
-      role: user.role,
-      id: user._id,
-      // cinverified: patient.cinverified,
-    });
-  }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
@@ -278,6 +287,44 @@ const logout = async (req, res) => {
 //   }
 // })();
 
+const login_face = async (req, res) => {
+  try {
+    const userna = req.body.username.toLowerCase();
+    console.log(userna)
+    const user = await User.findOne({ username: userna });
+    const patient = await Patient.findOne({ user: user._id });
+
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, {
+      expiresIn: process.env.JWT_EXPIRE_IN,
+    });
+    if (user.role == "patient") {
+      res.status(200).json({
+        accessToken: token,
+        username: user.username,
+        role: user.role,
+        message: "OK",
+        expiresIn: process.env.JWT_EXPIRE_IN,
+        role: user.role,
+        id: user._id,
+        cinverified: patient.cinverified,
+      });
+    } else {
+      res.status(200).json({
+        accessToken: token,
+        username: user.username,
+        role: user.role,
+        message: "OK",
+        expiresIn: process.env.JWT_EXPIRE_IN,
+        role: user.role,
+        id: user._id,
+        // cinverified: patient.cinverified,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({ status: "failed", message: error.message });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -285,4 +332,5 @@ module.exports = {
   ResetPassword,
   UpdatePassword,
   logout,
+  login_face,
 };

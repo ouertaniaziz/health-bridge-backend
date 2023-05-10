@@ -3,14 +3,17 @@ const express = require("express");
 const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
 const User = require("../model/User");
+const moment = require("moment");
 
 // CREATE
 const createAppointment = async (req, res) => {
   try {
+    console.log("hetha body", req.body.doctorId);
     const doctor = await Doctor.findById(req.body.doctorId);
     const patient = await Patient.findOne({ user: req.body.patientId });
-    console.log(req.body);
-    console.log(patient);
+    const user = await User.findById(req.body.patientId);
+    console.log(doctor, "hethaa doctor");
+
     const { date, time, reason } = req.body;
     const appointment = new Appointment({
       patient,
@@ -19,8 +22,13 @@ const createAppointment = async (req, res) => {
       time,
       reason,
     });
-    console.log(appointment);
     await appointment.save();
+    global.io.emit("notification", {
+      id: doctor.user,
+      time: time,
+      patient: user.firstname,
+    });
+
     res
       .status(201)
       .json({ message: "Appointment created successfully!", appointment });
@@ -29,20 +37,121 @@ const createAppointment = async (req, res) => {
   }
 };
 const getAppointmentsByDoctorId = async (req, res) => {
-  console.log("hey");
+  console.log("i m herre");
   try {
-    console.log(req.params);
     const doctorId = req.params.doctorId;
-    const user = await User.findById(doctorId);
-
-    const doctor = await Doctor.findOne({ user: user._id });
-    console.log(doctor, "hout tbib");
+    const doctor = await Doctor.find({ user: doctorId });
     const appointments = await Appointment.find({ doctor: doctor });
-    res.status(200).json(appointments);
+
+    const customizedAppointments = [];
+    for (const appointment of appointments) {
+      const patient = await Patient.findById(appointment.patient)
+        .populate("user")
+        .exec();
+      const time = appointment.time;
+      const [hours, minutes] = time.split(":");
+      const date = new Date();
+      date.setHours(hours);
+      date.setMinutes(minutes);
+      date.setMinutes(date.getMinutes() + 30);
+      const startTimeString = date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      date.setMinutes(date.getMinutes() + 30);
+      const endTimeString = date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const dateTimeString = `${startTimeString} - ${endTimeString}`;
+
+      const customizedAppointment = {
+        patientId: patient._id,
+        img: "/content/user-40-1.jpg",
+        id: appointment._id,
+        name: patient.user.username,
+        email: patient.user.email,
+        number: patient.user.phone,
+        date: appointment.date.toDateString(),
+        fromTo: dateTimeString,
+        injury: appointment.reason,
+      };
+      customizedAppointments.push(customizedAppointment);
+    }
+    console.log(customizedAppointments);
+    res.status(200).json(customizedAppointments);
   } catch (error) {
     res.status(500).json({ error: "Error getting appointments!" });
   }
 };
+const getAvailableSlots = async (req, res) => {
+  const doctorId = req.params.doctorId;
+
+  const startDate = moment().add(1, "day").startOf("day");
+  const endDate = moment().startOf("isoWeek").add(3, "week").add(1, "day");
+  try {
+    const existingAppointments = await Appointment.find({
+      doctor: doctorId,
+      date: { $gte: startDate, $lte: endDate },
+      status: "Scheduled",
+    }).select("date time");
+
+    const reservedTimes = existingAppointments.map((appointment) => ({
+      date: moment(appointment.date).format("YYYY-MM-DD"),
+      time: appointment.time,
+    }));
+
+    const availableSlots = [];
+    let currentDate = startDate.clone();
+    const availableTimes = [
+      "10h",
+      "10:30",
+      "11h",
+      "11:30",
+      "12h",
+      "14h",
+      "14:30",
+      "15h",
+      "15:30",
+      "16h",
+      "16:30",
+    ];
+    while (currentDate.isSameOrBefore(endDate)) {
+      availableTimes.forEach((time) => {
+        const reservedTime = reservedTimes.find(
+          (rt) =>
+            rt.date === currentDate.format("YYYY-MM-DD") && rt.time === time
+        ); // Modification 3
+        if (!reservedTime) {
+          availableSlots.push({
+            date: currentDate.format("YYYY-MM-DD"),
+            time,
+          });
+        }
+      });
+      currentDate.add(1, "day");
+    }
+
+    res.status(200).json(availableSlots);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to return" });
+  }
+};
+const getAppointmentsByPatient = async (req, res) => {
+  console.log("dkhlet");
+  const patient = await Patient.find({ user: req.params.patientId });
+  console.log(patient);
+  try {
+    const appointments = await Appointment.find({ patient: patient }).populate(
+      "patient doctor"
+    );
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch appointments!" });
+  }
+};
+
 // READ
 const getAppointments = async (req, res) => {
   try {
@@ -88,6 +197,25 @@ const updateAppointment = async (req, res) => {
     res.status(500).json({ error: "Failed to update appointment!" });
   }
 };
+// validate
+const validateAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const appointment = await Appointment.findByIdAndUpdate(
+      id,
+      { statud: "Completed" },
+      { new: true }
+    );
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found!" });
+    }
+    res
+      .status(200)
+      .json({ message: "Appointment updated successfully!", appointment });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update appointment!" });
+  }
+};
 
 // DELETE
 const deleteAppointment = async (req, res) => {
@@ -110,4 +238,6 @@ module.exports = {
   updateAppointment,
   deleteAppointment,
   getAppointmentsByDoctorId,
+  getAvailableSlots,
+  getAppointmentsByPatient,
 };

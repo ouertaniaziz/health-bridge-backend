@@ -37,5 +37,9 @@ router.delete(
   // authorize(["doctor"]),
   prescriptionController.deletePrescription
 );
+router.get(
+  "/prescription/:id/patients",
+  prescriptionController.getPrescriptionsByPatientId
+);
 
 module.exports = router;
