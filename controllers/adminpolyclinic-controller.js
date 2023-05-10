@@ -252,7 +252,7 @@ const getTotalDeclinedPrescriptions = async (req, res) => {
     const count = await Prescription.countDocuments({
       Polyclinicstatus: "Declined",
     });
-    res.status(200).json( {count} );
+    res.status(200).json({ count });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -264,7 +264,7 @@ const getTotalApprovedPrescriptions = async (req, res) => {
     const count = await Prescription.countDocuments({
       Polyclinicstatus: "Approved",
     });
-    res.status(200).json( {count} );
+    res.status(200).json({ count });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -274,7 +274,7 @@ const getTotalApprovedPrescriptions = async (req, res) => {
 const getTotalPatients = async (req, res) => {
   try {
     const count = await Patient.countDocuments();
-    res.json( {count} );
+    res.json({ count });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -283,7 +283,7 @@ const getTotalPatients = async (req, res) => {
 const getTotalDoctors = async (req, res) => {
   try {
     const count = await Doctor.countDocuments();
-    res.json( {count} );
+    res.json({ count });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
