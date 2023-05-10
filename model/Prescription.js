@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
+ const mongoose = require("mongoose");
 
+ 
 const prescriptionSchema = new mongoose.Schema({
   patient: {
     type: mongoose.Schema.Types.ObjectId,
@@ -45,6 +46,6 @@ const prescriptionSchema = new mongoose.Schema({
   },
 });
 
-const Prescription = mongoose.model("Prescription", prescriptionSchema);
+ const Prescription = mongoose.model("Prescription", prescriptionSchema);
 
-module.exports = Prescription;
+ module.exports = Prescription;

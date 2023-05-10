@@ -6,6 +6,7 @@ const Role = Object.freeze({
   Pharmacist: "pharmacist",
   AdminPolyclinc: "adminpolyclinic",
   Admin: "admin",
+  Donor:"donor",
 });
 
 const Speciality = Object.freeze({
@@ -17,8 +18,7 @@ const Speciality = Object.freeze({
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
-    unique: true,
+    unique: true
   },
   firstname: String,
   lastname: String,

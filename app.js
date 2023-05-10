@@ -9,12 +9,12 @@ const pharmacist = require("./routes/pharmacist-routes");
 const dotenv = require("dotenv");
 const prescriptionrouter = require("./routes/prescription-routes");
 const patientrouter = require("./routes/patient-routes");
-
-const appointementrouter = require("./routes/appointement-routes");
 const donor = require("./routes/donor-router");
 const doctor = require("./routes/doctor-routers");
 const predection = require("./routes/predection-routes");
-
+const material = require("./routes/material-routes");
+const medication=require("./routes/medication-routes")
+const appointementrouter = require("./routes/appointement-routes");
 const bodyParser = require("body-parser");
 //chat
 
@@ -60,10 +60,11 @@ app.use("/api", donor);
 app.use("/api", traitement);
 app.use("/api", predection);
 app.use("/api", adminpolyclinic);
-
+app.use("/api", material);
+app.use("/api", medication);
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
-
+  
 mongoose.connect(
   process.env.MONGODB_URL,
   {
