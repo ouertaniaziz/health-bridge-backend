@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const storagemed = new mongoose.Schema({
   medicationname: {
     type: String,
-    required: true,
   },
   Dosage:{
     type:String,
