@@ -49,7 +49,7 @@ const uploadfilepatient = async (req, res) => {
       return res.status(400).send("No file uploaded");
     }
 
-    res.status(200).send("File uploaded successfully");
+    res.status(200).json({record});
   });
 };
 module.exports = { uploadfilepatient };

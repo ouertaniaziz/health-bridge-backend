@@ -4,6 +4,7 @@ const Patient = require("../model/Patient");
 const Doctor = require("../model/Doctor");
 const User = require("../model/User");
 const formData = require("form-data");
+const Prescription = require("../model/Prescription");
 
 const Mailgun = require("mailgun.js");
 const Record = require("../model/Record");
@@ -67,7 +68,8 @@ const get_patient_by_username = async (req, res) => {
 };
 const update_patient = async (req, res) => {
   try {
-    console.log(req.body.user);
+    console.log(req.body.usera);
+    console.log(req.body);
 
     const val = await email_real_time(req, res);
     console.log(val.result);
@@ -81,10 +83,10 @@ const update_patient = async (req, res) => {
         postal_code,
         gender,
         state,
-      } = req.body.user;
+      } = req.body.usera;
 
       const updated = await User.findOneAndUpdate(
-        { _id: req.body.user._id },
+        { _id: req.body.usera._id },
         {
           $set: {
             firstname,
@@ -117,8 +119,8 @@ const client = mailgun.client({
 });
 const email_real_time = async (req, res) => {
   try {
-    const validationRes = await client.validate.get(req.body.user.email);
-    //console.log(req.body.email);
+    const validationRes = await client.validate.get(req.body.usera.email);
+    console.log(req.body);
 
     console.log("validationRes", validationRes);
     return validationRes;
@@ -138,10 +140,86 @@ const getmedicalrecordsnames = async (req, res) => {
   } catch (error) {}
 };
 
+const getnumberpharmacist = async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.params.id });
+    const prescriptions = await Prescription.find({
+      patient: patient._id,
+    });
+    console.log(prescriptions.length);
+    res.status(200).json({ number: prescriptions.length });
+  } catch (error) {
+    res.send(error.message);
+  }
+};
+const getstats = async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.params.id });
+    //number total of prescriptions
+
+    const prescriptionstotal = await Prescription.find({
+      patient: patient._id,
+    });
+    //prescriptions approved
+
+    const prescriptions = await Prescription.find({
+      patient: patient._id,
+      Polyclinicstatus: "Approved",
+    });
+    //appointments
+    const appointments = await Appointment.find({
+      patient: patient._id,
+      status: "Scheduled",
+    });
+    //medical records
+    const records = await Record.find({ patient: req.params.id });
+    //result
+    let totalofprescription = prescriptionstotal.length;
+    let approvedprescriptions = prescriptions ? prescriptions.length : 0;
+    let appointmentsnumber = appointments.length;
+    let medicalnumber = records.length;
+    //res.status(200).json({ approvedprescriptions });
+    res.status(200).json({
+      totalofprescription,
+      approvedprescriptions,
+      appointmentsnumber,
+      medicalnumber,
+    });
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+};
+const numberofappointments = async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ user: req.params.id });
+
+    const appointments = await Appointment.find({
+      patient: patient._id,
+      status: "Scheduled",
+    });
+    //const x = appointments ? appointments.length : 0;
+
+    res.status(200).json({ number: appointments.length });
+  } catch (error) {
+    res.send(error.message);
+  }
+};
+const numberofmedicalrecords = async (req, res) => {
+  try {
+    const records = await Record.find({ patient: req.params.id });
+    res.status(200).json({ number: records.length });
+  } catch (error) {
+    res.status(400).send();
+  }
+};
 module.exports = {
   addPatient,
   get_patient_by_username,
   update_patient,
   email_real_time,
   getmedicalrecordsnames,
+  getnumberpharmacist,
+  numberofappointments,
+  numberofmedicalrecords,
+  getstats,
 };

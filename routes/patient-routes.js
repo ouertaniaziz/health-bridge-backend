@@ -4,7 +4,7 @@ const patient = require("../controllers/patient-controller");
 const ocr = require("./../middleware/mindee");
 const uploadfile = require("./../middleware/uploadfilespatient");
 const chat = require("./../middleware/chatgpt");
-const controller=require('./../controllers/user-controller')
+const controller = require("./../controllers/user-controller");
 router.post("/addpatient", patient.addPatient);
 router.post("/patient/getpatient", patient.get_patient_by_username);
 router.put("/patient/updatepatient", patient.update_patient);
@@ -12,8 +12,12 @@ router.post("/patient/cin", ocr.getcin_from_image);
 router.post("/patient/addfiles", uploadfile.uploadfilepatient);
 router.post("/patient/chat", chat.chatgpt);
 router.get("/patient/facelogin", controller.login_face);
+router.get("/patient/getprescriptions/:id", patient.getstats);
+// router.get("/patient/approved/:id", patient.prescriptionapproved);
+// router.get("/patient/appoint/:id", patient.numberofappointments);
+// router.get("/patient/records/:id", patient.numberofmedicalrecords);
 
-router.post("/patient/", (req, res) => {
+router.get("/patient", (req, res) => {
   console.log("triggered");
   res.send("hello world!");
 });

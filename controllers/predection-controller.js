@@ -25,7 +25,7 @@ const prediction = async (req, res) => {
   const options = {
     pythonOptions: ["-u"],
     scriptPath:
-      "C:/Users/21626/OneDrive/Documents/4twins2/PI/health-bridge-backend/public/ML_Model",
+      "C:/Users/Houssem/Desktop/final/health-bridge-backend/public/ML_Model",
     args: [req.body.age, gendre, bmi, req.body.children, smoker, region],
   };
 

@@ -4,16 +4,13 @@ import joblib
 import sys
 import os
 
-# Get the current working directory
-cwd = os.getcwd()
-
-# Set the new path to the file
-new_path = os.path.join(cwd, 'public', 'ML_Model', 'model.pkl')
-second_path = os.path.join(cwd, 'public', 'ML_Model', 'model.joblib')
 
 
-with open(new_path, 'rb') as f:
+with open('C:\\Users\\Houssem\\Desktop\\final\\health-bridge-backend\\public\\ML_Model\\model.pkl', 'rb') as f:
     model = pickle.load(f)
+joblib.dump(model, 'C:\\Users\\Houssem\\Desktop\\final\\health-bridge-backend\\public\\ML_Model\\model.joblib')
+model = joblib.load('C:\\Users\\Houssem\\Desktop\\final\\health-bridge-backend\\public\\ML_Model\\model.joblib')
+model = pickle.load(f)
 joblib.dump(model,second_path)
 
 model = joblib.load(second_path)
