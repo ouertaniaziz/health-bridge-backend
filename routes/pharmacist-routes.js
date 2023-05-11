@@ -10,5 +10,7 @@ router.post("/pharmacist/profile", pharmacist.getpharmacist);
 // router.delete("/pharmacist/deletepharmacist/:id", pharmacist.deletepharmacist);
 // router.post("/pharmacist/addpharmacist", pharmacist.addpharmacist);
 router.post("/pharmacist/getmedicamentfromimage", ocrmedicament.getmedicament_from_image);
-
+router.get("/pharmacist/getallprescriptions/:id",pharmacist.getPrescriptionListForPharmacistpart)
+router.post("/pharmacist/addprescriptiontoPharmacist",pharmacist.addPharmacistToPrescription)
+router.get("/pharmacist/getallmedicationsinstorage",pharmacist.getallmedicationsinstorage)
 module.exports = router;

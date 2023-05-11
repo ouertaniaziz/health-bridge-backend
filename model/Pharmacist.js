@@ -29,6 +29,7 @@ const pharmacistSchema = new mongoose.Schema({
         ref: "Storagemed",
       },
     ],
+  
 });
 
 const Pharmacist = mongoose.model("Pharmacist", pharmacistSchema);

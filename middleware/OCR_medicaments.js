@@ -5,6 +5,7 @@ const upload = multer({ storage: storage });
 const fs = require("fs");
 const Pharmacist = require("../model/Pharmacist");
 const Storagemed=require("./../model/Storagemed");
+const Buffer= require('buffer').Buffer;
 // Init a new client and add your document endpoint 
 const mindeeClient = new mindee.Client({ apiKey: "e3c7cb0108ca85dad83f14c857abb9e9" })
 .addEndpoint({
@@ -21,20 +22,21 @@ try{
           return res.status(400).send("Error uploading file");
         }
         const file = req.file;
-        console.log("Received file:", file.originalname);
-  
-        //console.log(req.file);
+        //console.log("Received file:", req.body);
+        //let correct=JSON.stringify(file)
+        console.log(req.body);
         // Convert the image buffer to a base64 string
-  
-        const apiResponse = mindeeClient
-          .docFromBase64(file.buffer.toString("base64"), file.originalname)
+        //fs.writeFile('./image.png', imageBuffer);
+        //let stringdata=file.toString('base64')
+        let apiResponse = mindeeClient
+          .docFromBase64(req.body.file,'image.jpg')
           .parse(mindee.CustomV1, { endpointName: "medicament_name" });
         apiResponse.then(async (resp) => {
           if (resp.document === undefined) return;
-            
+            console.log(resp.document.fields.get("medicament_name").toString())
             let medicament_name=resp.document.fields.get("medicament_name").toString()
             let doesage=resp.document.fields.get("dosage").toString()
-        let pharmacist = await Pharmacist.findOne({ _id: req.body._id });
+        let pharmacist = await Pharmacist.findOne({ user: req.body._id });
         console.log(pharmacist)
         console.log('hello')
         if (!pharmacist) {

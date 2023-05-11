@@ -25,7 +25,6 @@ const prescriptionSchema = new mongoose.Schema({
   },
   qrCodeVerif: {
     type: String,
-    required: true,
   },
 
   traitement: [
@@ -44,6 +43,12 @@ const prescriptionSchema = new mongoose.Schema({
     enum: ["Accepted", "Pending"],
     default: "Pending",
   },
+  
+  pharmacists: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Pharmacist",
+    required: true,
+  }],
 });
 
  const Prescription = mongoose.model("Prescription", prescriptionSchema);
