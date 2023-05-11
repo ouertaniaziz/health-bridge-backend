@@ -1,29 +1,34 @@
 const mongoose = require("mongoose");
 
+
 const medicationSchema = new mongoose.Schema({
-  donor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Donor",
-    required: true,
-  },
-  medicationname: {
-    type: String,
-    required: true,
-  },
-  validationPeriod: {
-    type: Date,
-    required: true,
-  },
-  numPackets: {
-    type: Number,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-});
+    donor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Donor",
+    },
 
-const Medication = mongoose.model("Medication", medicationSchema);
-
-module.exports = Medication;
+    medicationname: {
+      type: String,
+      required: true,
+    },
+    validationperiod: {
+      type: Number,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+      packetsname: {
+        type: String,
+        // required: true,
+      },
+      description: {
+        type: String,
+        required: true,
+      },
+      
+    
+  });
+  const Medication = mongoose.model("Medication", medicationSchema);
+  module.exports = Medication;

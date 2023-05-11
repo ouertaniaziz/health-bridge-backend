@@ -18,11 +18,11 @@ router.get(
 );
 
 // get prescription by ID endpoint with authorization for multiple roles
-router.get(
-  "/prescription/:id",
-  // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
-  prescriptionController.getPrescriptionById
-);
+// router.get(
+//   "/:id",
+//   // authorize(["doctor", "patient", "pharmacist", "adminpolyclinic", "admin"]),
+//   prescriptionController.findPrescriptionById
+// );
 
 // update prescription endpoint with authorization for doctor role
 router.put(

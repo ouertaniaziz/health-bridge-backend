@@ -2,12 +2,21 @@ import pickle
 import json
 import joblib
 import sys
+import os
 
-with open('C:\\Users\\21626\\OneDrive\\Documents\\4twins2\\PI\\health-bridge-backend\\public\\ML_Model\\model.pkl', 'rb') as f:
+# Get the current working directory
+cwd = os.getcwd()
+
+# Set the new path to the file
+new_path = os.path.join(cwd, 'public', 'ML_Model', 'model.pkl')
+second_path = os.path.join(cwd, 'public', 'ML_Model', 'model.joblib')
+
+
+with open(new_path, 'rb') as f:
     model = pickle.load(f)
-joblib.dump(model, 'C:\\Users\\21626\\OneDrive\\Documents\\4twins2\\PI\\health-bridge-backend\\public\\ML_Model\\model.joblib')
+joblib.dump(model,second_path)
 
-model = joblib.load('C:\\Users\\21626\\OneDrive\\Documents\\4twins2\\PI\\health-bridge-backend\\public\\ML_Model\\model.joblib')
+model = joblib.load(second_path)
 age= int(sys.argv[1])
 sex = int(sys.argv[2])
 bmi = float(sys.argv[3])
