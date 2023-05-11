@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const traitementSchema = new mongoose.Schema({
   medicationName: {
     type: String,
-    required: true,
   },
   manufacturer: {
     type: String,
